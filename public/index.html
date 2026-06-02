@@ -570,6 +570,24 @@ async function renderAdmin(){
   const r=await fetch(`${API}/results`,{method:'DELETE',headers:{'X-Admin-Key':adminKey}});
   if(!r.ok){alert('Error al borrar');return;}
   RESULTS=null;renderAdmin();};
+
+ // Participants section
+ const parts=await fetch(`${API}/admin/participants`,{headers:{'X-Admin-Key':adminKey}}).then(r=>r.ok?r.json():[]);
+ const phtml=parts.map(p=>`<div class="lb-row" style="gap:10px">
+   <div class="av">${initials(p.name)}</div>
+   <div class="info"><b>${esc(p.name)}</b><small>${p.id}</small></div>
+   <button class="tbtn" data-pid="${p.id}" data-pname="${esc(p.name)}">Resetear PIN</button>
+ </div>`).join('');
+ $('#view').insertAdjacentHTML('beforeend',`
+   <div class="subhead" style="margin-top:28px">👥 Participantes</div>${phtml}`);
+ $('#view').querySelectorAll('button[data-pid]').forEach(btn=>{
+  btn.onclick=async()=>{
+   const pin=prompt(`Nuevo PIN para ${btn.dataset.pname} (4-6 dígitos):`);
+   if(!pin||!/^\d{4,6}$/.test(pin)){if(pin!==null)alert('PIN inválido');return;}
+   const r=await fetch(`${API}/admin/participants/${btn.dataset.pid}/pin`,{method:'PUT',headers:{'Content-Type':'application/json','X-Admin-Key':adminKey},body:JSON.stringify({pin})});
+   if(r.ok)alert(`PIN de ${btn.dataset.pname} actualizado`);else alert('Error al resetear');
+  };
+ });
 }
 
 let adminSaveTimer;

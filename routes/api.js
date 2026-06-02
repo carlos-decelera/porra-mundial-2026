@@ -90,6 +90,30 @@ router.get('/results', async (req, res) => {
 
 router.get('/admin/ping', adminAuth, (req, res) => res.json({ ok: true }));
 
+router.get('/admin/participants', adminAuth, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT id, name, created_at FROM participants ORDER BY created_at');
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.put('/admin/participants/:id/pin', adminAuth, async (req, res) => {
+  const { pin } = req.body;
+  if (!pin || !/^\d{4,6}$/.test(String(pin))) return res.status(400).json({ error: 'PIN must be 4-6 digits' });
+  try {
+    const { rowCount } = await pool.query(
+      'UPDATE participants SET pin_hash=$1 WHERE id=$2',
+      [hashPin(String(pin)), req.params.id]
+    );
+    if (!rowCount) return res.status(404).json({ error: 'Participant not found' });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 router.get('/leaderboard', async (req, res) => {
   try {
     const { rows } = await pool.query(`
