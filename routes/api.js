@@ -3,6 +3,12 @@ const { pool } = require('../db');
 
 const router = Router();
 
+function adminAuth(req, res, next) {
+  const key = req.headers['x-admin-key'];
+  if (!key || key !== process.env.ADMIN_KEY) return res.status(401).json({ error: 'Unauthorized' });
+  next();
+}
+
 router.get('/participants', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT id, name FROM participants ORDER BY created_at');
@@ -60,7 +66,21 @@ router.get('/results', async (req, res) => {
   }
 });
 
-router.put('/results', async (req, res) => {
+router.get('/leaderboard', async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT p.id, p.name, pr.data AS pred
+      FROM participants p
+      LEFT JOIN predictions pr ON pr.participant_id = p.id
+      ORDER BY p.created_at
+    `);
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.put('/results', adminAuth, async (req, res) => {
   try {
     await pool.query(
       `INSERT INTO results(id,data,updated_at) VALUES(1,$1,NOW())
@@ -73,7 +93,7 @@ router.put('/results', async (req, res) => {
   }
 });
 
-router.delete('/results', async (req, res) => {
+router.delete('/results', adminAuth, async (req, res) => {
   try {
     await pool.query('UPDATE results SET data=NULL, updated_at=NOW() WHERE id=1');
     res.json({ ok: true });

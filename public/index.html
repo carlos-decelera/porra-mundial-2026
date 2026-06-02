@@ -1,5 +1,4 @@
 
-<!-- saved from url=(0067)file:///C:/Users/LorenzoHurtado/Downloads/porra-mundial-2026_4.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -439,10 +438,13 @@ function groupPhasePts(pred){let s=0;MATCHES.forEach(m=>{const p=pred.matches&&p
 /* ===================== RENDER: RANKING ===================== */
 async function renderBoard(){
  $('#view').innerHTML=`<div class="loading"><div class="spin"></div>Cargando ranking…</div>`;
- PARTICIPANTS=(await S.get('participants'))||[];RESULTS=await S.get('results');
- const preds=await Promise.all(PARTICIPANTS.map(p=>S.get('pred:'+p.id)));
+ const [lb,res]=await Promise.all([
+  fetch(`${API}/leaderboard`).then(r=>r.ok?r.json():[]),
+  fetch(`${API}/results`).then(r=>r.ok?r.json():null)
+ ]);
+ RESULTS=res;
  const scored=RESULTS!=null;
- const rows=PARTICIPANTS.map((p,i)=>{const pr=preds[i]||{matches:{},trophies:{},podio:{}};
+ const rows=lb.map(p=>{const pr=p.pred||{matches:{},trophies:{},podio:{}};
   const md=MATCHES.filter(m=>{const v=pr.matches&&pr.matches[m.no];return v&&v.h!==''&&v.h!=null&&v.a!==''&&v.a!=null}).length;
   return {name:p.name,sc:scoreOf(pr),md,pr,mine:p.id===ME.id};});
  rows.sort((a,b)=>scored?(b.sc-a.sc):(b.md-a.md));
@@ -467,9 +469,18 @@ async function renderBoard(){
    <button class="btn gold" id="loadMine">Usar mis predicciones como resultados oficiales</button>
    ${RESULTS?'<button class="btn ghost" id="clearRes" style="margin-top:8px">Borrar resultados (volver a modo predicción)</button>':''}</div></details>`;
  $('#view').innerHTML=html;
- const lm=$('#loadMine');if(lm)lm.onclick=async()=>{if(!confirm('¿Usar TUS predicciones como resultados oficiales y puntuar a todos?'))return;
-   await S.set('results',{matches:MY.matches,trophies:MY.trophies,podio:MY.podio});renderBoard();};
- const cr=$('#clearRes');if(cr)cr.onclick=async()=>{if(confirm('¿Borrar resultados oficiales?')){await S.set('results',null);renderBoard();}};
+ const lm=$('#loadMine');if(lm)lm.onclick=async()=>{
+  if(!confirm('¿Usar TUS predicciones como resultados oficiales y puntuar a todos?'))return;
+  const key=prompt('Clave del organizador:');if(!key)return;
+  const r=await fetch(`${API}/results`,{method:'PUT',headers:{'Content-Type':'application/json','X-Admin-Key':key},body:JSON.stringify({matches:MY.matches,trophies:MY.trophies,podio:MY.podio})});
+  if(!r.ok){alert('Clave incorrecta');return;}
+  renderBoard();};
+ const cr=$('#clearRes');if(cr)cr.onclick=async()=>{
+  if(!confirm('¿Borrar resultados oficiales?'))return;
+  const key=prompt('Clave del organizador:');if(!key)return;
+  const r=await fetch(`${API}/results`,{method:'DELETE',headers:{'X-Admin-Key':key}});
+  if(!r.ok){alert('Clave incorrecta');return;}
+  renderBoard();};
 }
 
 /* ===================== RENDER: REGLAS ===================== */
