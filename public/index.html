@@ -335,11 +335,12 @@ function standingsHTML(g){
 /* ===================== ONBOARD ===================== */
 function showOnboard(){
  let mode='register';
- function render(){
+ function render(errMsg){
   const rec=mode==='recover';
   $('#onboard').innerHTML=`<div class="veil"><div class="card reveal">
     <div class="big">🏆</div><h2>La <span>Porra</span><br>del Mundial 2026</h2>
     <p class="sub">${rec?'Introduce tu nombre y PIN para recuperar tu sesión desde este navegador.':'Elige un nombre y un PIN de 4-6 dígitos. Los necesitarás para entrar desde otro navegador.'}</p>
+    ${errMsg?`<p style="color:var(--red);font-size:13px;margin-bottom:8px;font-weight:700">${errMsg}</p>`:''}
     <input id="nameIn" type="text" maxlength="26" placeholder="Tu nombre" autocomplete="off">
     <input id="pinIn" type="password" maxlength="6" placeholder="PIN (4-6 dígitos)" inputmode="numeric" autocomplete="off">
     <button class="btn" id="mainBtn">${rec?'Recuperar sesión 🔑':'Entrar a la porra ⚽'}</button>
@@ -347,31 +348,35 @@ function showOnboard(){
     ${!rec?'<div class="stats4"><div><b>48</b><i>Equipos</i></div><div><b>72</b><i>Partidos</i></div><div><b>13</b><i>Premios</i></div><div><b>782</b><i>Pts máx</i></div></div>':''}
   </div></div>`;
   const inp=$('#nameIn'),pin=$('#pinIn');inp.focus();
+  const showErr=msg=>{render(msg);};
   const validate=()=>{
    const name=inp.value.trim(),p=pin.value.trim();
-   if(name.length<2){inp.style.borderColor='var(--red)';return null;}
-   if(!/^\d{4,6}$/.test(p)){pin.style.borderColor='var(--red)';return null;}
+   if(name.length<2){showErr('El nombre debe tener al menos 2 caracteres');return null;}
+   if(!/^\d{4,6}$/.test(p)){showErr('El PIN debe ser de 4 a 6 dígitos numéricos');return null;}
    return {name,pin:p};
   };
   const go=async()=>{
    const v=validate();if(!v)return;
+   $('#mainBtn').disabled=true;
    $('#mainBtn').textContent=rec?'Buscando…':'Entrando…';
-   if(!rec){
-    ME={id:uid(),name:v.name};
-    const r=await fetch(`${API}/participants`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:ME.id,name:v.name,pin:v.pin})});
-    if(!r.ok){const e=await r.json();alert(e.error||'Error al registrarse');render();return;}
-    ME=await r.json();
-    await S.set('me',ME,false);
-    await S.set('pred:'+ME.id,{name:ME.name,matches:{},trophies:{},podio:{}});
-   } else {
-    const r=await fetch(`${API}/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:v.name,pin:v.pin})});
-    if(!r.ok){const e=await r.json();alert(e.error||'Nombre o PIN incorrecto');render();return;}
-    ME=await r.json();
-    await S.set('me',ME,false);
-    const pr=await S.get('pred:'+ME.id);
-    if(pr){MY.matches=pr.matches||{};MY.trophies=pr.trophies||{};MY.podio=pr.podio||{};}
-   }
-   $('#onboard').innerHTML='';launch();
+   try{
+    if(!rec){
+     ME={id:uid(),name:v.name};
+     const r=await fetch(`${API}/participants`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:ME.id,name:v.name,pin:v.pin})});
+     if(!r.ok){const e=await r.json();render(e.error||'Error al registrarse');return;}
+     ME=await r.json();
+     await S.set('me',ME,false);
+     await S.set('pred:'+ME.id,{name:ME.name,matches:{},trophies:{},podio:{}});
+    } else {
+     const r=await fetch(`${API}/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:v.name,pin:v.pin})});
+     if(!r.ok){const e=await r.json();render(e.error||'Nombre o PIN incorrecto');return;}
+     ME=await r.json();
+     await S.set('me',ME,false);
+     const pr=await S.get('pred:'+ME.id);
+     if(pr){MY.matches=pr.matches||{};MY.trophies=pr.trophies||{};MY.podio=pr.podio||{};}
+    }
+    $('#onboard').innerHTML='';launch();
+   }catch(e){render('No se pudo conectar con el servidor. ¿Está Railway activo?');}
   };
   $('#mainBtn').onclick=go;
   $('#modeBtn').onclick=()=>{mode=rec?'register':'recover';render();};
