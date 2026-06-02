@@ -146,6 +146,11 @@
   details.admin>summary::-webkit-details-marker{display:none}details.admin>summary:before{content:'⚙️ '}
   .admin-body{padding:0 16px 16px;border-top:1px solid var(--line)}.admin-body p{font-size:12px;color:var(--muted);margin:12px 0;line-height:1.5}
   .reveal{animation:rv .45s ease both}@keyframes rv{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .ac-wrap{position:relative}
+  .ac-drop{display:none;position:absolute;top:calc(100% + 3px);left:0;right:0;background:var(--panel2);border:1px solid var(--line);border-radius:10px;z-index:30;max-height:210px;overflow-y:auto;box-shadow:var(--shadow)}
+  .ac-item{padding:9px 12px;font-size:13px;cursor:pointer;border-radius:8px}
+  .ac-item:hover,.ac-item.on{background:var(--pitch-d);color:#eafff0}
 </style>
 
 </head><body><div id="onboard"><div class="veil"><div class="card reveal">
@@ -224,6 +229,73 @@ const TROPHIES=[
  {id:'dirty_p',ic:'🟥',name:'Jugador más sucio',desc:'Más tarjetas',type:'text',pts:2,ph:'Jugador'},
  {id:'dirty_t',ic:'😈',name:'Equipo más sucio',desc:'Selección más sancionada',type:'team',pts:2}
 ];
+const PLAYERS=[
+ ['Lionel Messi','🇦🇷'],['Lautaro Martínez','🇦🇷'],['Julián Álvarez','🇦🇷'],['Rodrigo De Paul','🇦🇷'],
+ ['Alexis Mac Allister','🇦🇷'],['Ángel Di María','🇦🇷'],['Cristian Romero','🇦🇷'],['Emiliano Martínez','🇦🇷'],
+ ['Enzo Fernández','🇦🇷'],['Lisandro Martínez','🇦🇷'],['Nahuel Molina','🇦🇷'],
+ ['Kylian Mbappé','🇫🇷'],['Antoine Griezmann','🇫🇷'],['Ousmane Dembélé','🇫🇷'],['Eduardo Camavinga','🇫🇷'],
+ ['Aurélien Tchouaméni','🇫🇷'],['Théo Hernández','🇫🇷'],['Mike Maignan','🇫🇷'],['William Saliba','🇫🇷'],
+ ['Marcus Thuram','🇫🇷'],['Randal Kolo Muani','🇫🇷'],['Dayot Upamecano','🇫🇷'],
+ ['Vinicius Jr','🇧🇷'],['Rodrygo','🇧🇷'],['Endrick','🇧🇷'],['Raphinha','🇧🇷'],['Savinho','🇧🇷'],
+ ['Bruno Guimarães','🇧🇷'],['Lucas Paquetá','🇧🇷'],['Casemiro','🇧🇷'],['Marquinhos','🇧🇷'],['Alisson','🇧🇷'],
+ ['Lamine Yamal','🇪🇸'],['Pedri','🇪🇸'],['Gavi','🇪🇸'],['Rodri','🇪🇸'],['Álvaro Morata','🇪🇸'],
+ ['Dani Olmo','🇪🇸'],['Nico Williams','🇪🇸'],['Fabián Ruiz','🇪🇸'],['Unai Simón','🇪🇸'],
+ ['Alejandro Grimaldo','🇪🇸'],['Ferran Torres','🇪🇸'],['Aymeric Laporte','🇪🇸'],
+ ['Cristiano Ronaldo','🇵🇹'],['Bruno Fernandes','🇵🇹'],['Bernardo Silva','🇵🇹'],['Rafael Leão','🇵🇹'],
+ ['Vitinha','🇵🇹'],['Rúben Dias','🇵🇹'],['Diogo Costa','🇵🇹'],['Pedro Neto','🇵🇹'],
+ ['João Neves','🇵🇹'],['Gonçalo Ramos','🇵🇹'],['João Cancelo','🇵🇹'],
+ ['Jude Bellingham','🏴'],['Harry Kane','🏴'],['Bukayo Saka','🏴'],['Phil Foden','🏴'],
+ ['Cole Palmer','🏴'],['Trent Alexander-Arnold','🏴'],['Declan Rice','🏴'],
+ ['Jordan Pickford','🏴'],['Marcus Rashford','🏴'],['Kieran Trippier','🏴'],
+ ['Florian Wirtz','🇩🇪'],['Jamal Musiala','🇩🇪'],['Kai Havertz','🇩🇪'],['Leroy Sané','🇩🇪'],
+ ['Joshua Kimmich','🇩🇪'],['Antonio Rüdiger','🇩🇪'],['Manuel Neuer','🇩🇪'],['Ilkay Gündogan','🇩🇪'],
+ ['Virgil van Dijk','🇳🇱'],['Cody Gakpo','🇳🇱'],['Xavi Simons','🇳🇱'],['Tijjani Reijnders','🇳🇱'],
+ ['Denzel Dumfries','🇳🇱'],['Memphis Depay','🇳🇱'],['Bart Verbruggen','🇳🇱'],
+ ['Kevin De Bruyne','🇧🇪'],['Thibaut Courtois','🇧🇪'],['Romelu Lukaku','🇧🇪'],
+ ['Jérémy Doku','🇧🇪'],['Leandro Trossard','🇧🇪'],
+ ['Darwin Núñez','🇺🇾'],['Federico Valverde','🇺🇾'],['Rodrigo Bentancur','🇺🇾'],
+ ['Ronald Araújo','🇺🇾'],['José María Giménez','🇺🇾'],
+ ['James Rodríguez','🇨🇴'],['Luis Díaz','🇨🇴'],['Richard Ríos','🇨🇴'],
+ ['Jhon Durán','🇨🇴'],['Davinson Sánchez','🇨🇴'],
+ ['Achraf Hakimi','🇲🇦'],['Hakim Ziyech','🇲🇦'],['Youssef En-Nesyri','🇲🇦'],
+ ['Sofyan Amrabat','🇲🇦'],['Yassine Bounou','🇲🇦'],
+ ['Erling Haaland','🇳🇴'],['Martin Ødegaard','🇳🇴'],['Alexander Sørloth','🇳🇴'],['Sander Berge','🇳🇴'],
+ ['Viktor Gyökeres','🇸🇪'],['Alexander Isak','🇸🇪'],['Dejan Kulusevski','🇸🇪'],['Emil Forsberg','🇸🇪'],
+ ['Sadio Mané','🇸🇳'],['Édouard Mendy','🇸🇳'],['Kalidou Koulibaly','🇸🇳'],['Ismaïla Sarr','🇸🇳'],
+ ['Mohamed Salah','🇪🇬'],['Omar Marmoush','🇪🇬'],
+ ['Son Heung-min','🇰🇷'],['Kim Min-jae','🇰🇷'],['Lee Kang-in','🇰🇷'],
+ ['Takumi Minamino','🇯🇵'],['Daichi Kamada','🇯🇵'],['Ritsu Doan','🇯🇵'],['Wataru Endo','🇯🇵'],
+ ['Alphonso Davies','🇨🇦'],['Jonathan David','🇨🇦'],['Tajon Buchanan','🇨🇦'],['Cyle Larin','🇨🇦'],
+ ['Christian Pulisic','🇺🇸'],['Weston McKennie','🇺🇸'],['Gio Reyna','🇺🇸'],['Tim Weah','🇺🇸'],['Folarin Balogun','🇺🇸'],
+ ['Santiago Giménez','🇲🇽'],['Edson Álvarez','🇲🇽'],['Hirving Lozano','🇲🇽'],['Raúl Jiménez','🇲🇽'],
+ ['Enner Valencia','🇪🇨'],['Moisés Caicedo','🇪🇨'],['Pervis Estupiñán','🇪🇨'],
+ ['Hakan Çalhanoğlu','🇹🇷'],['Arda Güler','🇹🇷'],['Kenan Yıldız','🇹🇷'],['Merih Demiral','🇹🇷'],
+ ['Luka Modrić','🇭🇷'],['Mateo Kovačić','🇭🇷'],['Joško Gvardiol','🇭🇷'],['Dominik Livaković','🇭🇷'],
+ ['Granit Xhaka','🇨🇭'],['Breel Embolo','🇨🇭'],['Manuel Akanji','🇨🇭'],['Yann Sommer','🇨🇭'],
+ ['Sardar Azmoun','🇮🇷'],['Mehdi Taremi','🇮🇷'],
+];
+function attachAC(wrap,onSelect){
+ const inp=wrap.querySelector('.ac-inp'),drop=wrap.querySelector('.ac-drop');
+ let cur=-1;
+ const show=q=>{
+  const hits=PLAYERS.filter(([n])=>n.toLowerCase().includes(q.toLowerCase())).slice(0,8);
+  if(!hits.length){drop.style.display='none';return;}
+  drop.innerHTML=hits.map(([n,f])=>`<div class="ac-item" data-n="${esc(n)}">${f} ${n}</div>`).join('');
+  drop.style.display='block';cur=-1;
+  drop.querySelectorAll('.ac-item').forEach(el=>el.onmousedown=e=>{e.preventDefault();pick(el.dataset.n);});
+ };
+ const pick=name=>{inp.value=name;drop.style.display='none';cur=-1;onSelect(name);};
+ inp.oninput=()=>{inp.value.trim()?show(inp.value.trim()):drop.style.display='none';};
+ inp.onkeydown=e=>{
+  const items=[...drop.querySelectorAll('.ac-item')];
+  if(e.key==='ArrowDown'){cur=Math.min(cur+1,items.length-1);items.forEach((el,i)=>el.classList.toggle('on',i===cur));e.preventDefault();}
+  else if(e.key==='ArrowUp'){cur=Math.max(cur-1,0);items.forEach((el,i)=>el.classList.toggle('on',i===cur));e.preventDefault();}
+  else if(e.key==='Enter'&&cur>=0){pick(items[cur].dataset.n);}
+  else if(e.key==='Escape'){drop.style.display='none';}
+ };
+ inp.onblur=()=>setTimeout(()=>drop.style.display='none',150);
+}
+
 const PODIO=[
  {id:'champ',ic:'🏆',name:'Campeón',desc:'Levanta la copa',pts:3},
  {id:'runner',ic:'🥈',name:'Subcampeón',desc:'Pierde la final',pts:2},
@@ -448,14 +520,14 @@ function renderTrophies(){
  let html=`<div class="subhead">🏅 Trofeos individuales · +2 cada uno</div>`;
  TROPHIES.forEach(t=>{const v=MY.trophies[t.id];let f;
   if(t.type==='team')f=`<div class="field"><select data-tr="${t.id}">${opts}</select></div>`;
-  else f=`<div class="field"><input type="text" data-tr="${t.id}" maxlength="40" placeholder="${t.ph}" value="${v?esc(v):''}"></div>`;
+  else f=`<div class="field"><div class="ac-wrap" data-tr="${t.id}"><input class="ac-inp" type="text" placeholder="${t.ph}" autocomplete="off" value="${v?esc(v):''}"><div class="ac-drop"></div></div></div>`;
   html+=`<div class="trophy"><div class="ti">${t.ic}</div><div class="tx"><h3>${t.name}</h3><p>${t.desc}</p>${f}</div><div class="pts">+${t.pts}</div></div>`;});
  html+=`<div class="subhead">🥇 Podio final · 3 / 2 / 2 pts</div>`;
  PODIO.forEach(p=>{html+=`<div class="trophy"><div class="ti">${p.ic}</div><div class="tx"><h3>${p.name}</h3><p>${p.desc}</p>
    <div class="field"><select data-pod="${p.id}">${opts}</select></div></div><div class="pts">+${p.pts}</div></div>`;});
  $('#view').innerHTML=html;
  $('#view').querySelectorAll('select[data-tr]').forEach(s=>{s.value=MY.trophies[s.dataset.tr]||'';s.onchange=()=>{MY.trophies[s.dataset.tr]=s.value;updateCounters();queueSave();};});
- $('#view').querySelectorAll('input[data-tr]').forEach(i=>{i.oninput=()=>{MY.trophies[i.dataset.tr]=i.value;updateCounters();queueSave();};});
+ $('#view').querySelectorAll('.ac-wrap[data-tr]').forEach(w=>{attachAC(w,n=>{MY.trophies[w.dataset.tr]=n;updateCounters();queueSave();});});
  $('#view').querySelectorAll('select[data-pod]').forEach(s=>{s.value=MY.podio[s.dataset.pod]||'';s.onchange=()=>{MY.podio[s.dataset.pod]=s.value;updateCounters();queueSave();};});
 }
 
@@ -555,7 +627,7 @@ async function renderAdmin(){
  html+=`</div><div class="subhead">🏅 Trofeos y podio</div>`;
  TROPHIES.forEach(t=>{const v=ADMIN_RES.trophies[t.id];
   const f=t.type==='team'?`<div class="field"><select data-tr="${t.id}">${opts}</select></div>`
-   :`<div class="field"><input type="text" data-tr="${t.id}" maxlength="40" placeholder="${t.ph}" value="${v?esc(v):''}"></div>`;
+   :`<div class="field"><div class="ac-wrap" data-tr="${t.id}"><input class="ac-inp" type="text" placeholder="${t.ph}" autocomplete="off" value="${v?esc(v):''}"><div class="ac-drop"></div></div></div>`;
   html+=`<div class="trophy"><div class="ti">${t.ic}</div><div class="tx"><h3>${t.name}</h3><p>${t.desc}</p>${f}</div><div class="pts">+${t.pts}</div></div>`;});
  PODIO.forEach(p=>{html+=`<div class="trophy"><div class="ti">${p.ic}</div><div class="tx"><h3>${p.name}</h3><p>${p.desc}</p>
    <div class="field"><select data-pod="${p.id}">${opts}</select></div></div><div class="pts">+${p.pts}</div></div>`;});
@@ -568,7 +640,7 @@ async function renderAdmin(){
   inp.classList.toggle('set',inp.value!=='');
   saveAdminResults();};});
  $('#view').querySelectorAll('select[data-tr]').forEach(s=>{s.value=ADMIN_RES.trophies[s.dataset.tr]||'';s.onchange=()=>{ADMIN_RES.trophies[s.dataset.tr]=s.value;saveAdminResults();};});
- $('#view').querySelectorAll('input[data-tr]').forEach(i=>{i.oninput=()=>{ADMIN_RES.trophies[i.dataset.tr]=i.value;saveAdminResults();};});
+ $('#view').querySelectorAll('.ac-wrap[data-tr]').forEach(w=>{attachAC(w,n=>{ADMIN_RES.trophies[w.dataset.tr]=n;saveAdminResults();});});
  $('#view').querySelectorAll('select[data-pod]').forEach(s=>{s.value=ADMIN_RES.podio[s.dataset.pod]||'';s.onchange=()=>{ADMIN_RES.podio[s.dataset.pod]=s.value;saveAdminResults();};});
  $('#logoutAdmin').onclick=()=>{adminKey=null;sessionStorage.removeItem('admin_key');renderAdmin();};
  $('#clearAdminRes').onclick=async()=>{
