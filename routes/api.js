@@ -88,6 +88,8 @@ router.get('/results', async (req, res) => {
   }
 });
 
+router.get('/admin/ping', adminAuth, (req, res) => res.json({ ok: true }));
+
 router.get('/leaderboard', async (req, res) => {
   try {
     const { rows } = await pool.query(`

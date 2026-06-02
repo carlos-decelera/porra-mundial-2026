@@ -176,6 +176,7 @@
     <button data-tab="trophies"><span class="ic">🏅</span>Trofeos</button>
     <button data-tab="board"><span class="ic">📊</span>Ranking</button>
     <button data-tab="rules"><span class="ic">📖</span>Reglas</button>
+    <button data-tab="admin"><span class="ic">⚙️</span>Admin</button>
   </nav>
   <section id="view"></section>
 </main>
@@ -286,6 +287,8 @@ const S = {
 /* ===================== ESTADO ===================== */
 let ME=null, PARTICIPANTS=[], RESULTS=null, curTab='matches', saveTimer=null;
 let MY={matches:{},trophies:{},podio:{}};
+let adminKey=sessionStorage.getItem('admin_key')||null;
+let ADMIN_RES={matches:{},trophies:{},podio:{}};
 const uid=()=>'p_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
 const $=s=>document.querySelector(s);
 const initials=n=>n.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
@@ -497,23 +500,86 @@ async function renderBoard(){
  html+=`<div class="subhead">📈 Desglose por fase (tú)</div>`;
  phases.forEach(([n,v,mx,act])=>{html+=`<div class="phase${act?'':' dim'}"><span class="pn">${n}${act?'':' · próximamente'}</span><span class="pm">${v} / ${mx}</span></div>`;});
 
- html+=`<details class="admin"><summary>Panel del organizador · introducir resultados</summary><div class="admin-body">
-   <p>Al terminar el torneo (o cada jornada) copia aquí los resultados reales para puntuar a todos. Como atajo, puedes cargar tus propias predicciones como plantilla y editarlas.</p>
-   <button class="btn gold" id="loadMine">Usar mis predicciones como resultados oficiales</button>
-   ${RESULTS?'<button class="btn ghost" id="clearRes" style="margin-top:8px">Borrar resultados (volver a modo predicción)</button>':''}</div></details>`;
+ html+=`<div class="lb-note" style="margin-top:16px">⚙️ ¿Eres el organizador? Introduce los resultados oficiales en la pestaña <b>Admin</b>.</div>`;
  $('#view').innerHTML=html;
- const lm=$('#loadMine');if(lm)lm.onclick=async()=>{
-  if(!confirm('¿Usar TUS predicciones como resultados oficiales y puntuar a todos?'))return;
-  const key=prompt('Clave del organizador:');if(!key)return;
-  const r=await fetch(`${API}/results`,{method:'PUT',headers:{'Content-Type':'application/json','X-Admin-Key':key},body:JSON.stringify({matches:MY.matches,trophies:MY.trophies,podio:MY.podio})});
-  if(!r.ok){alert('Clave incorrecta');return;}
-  renderBoard();};
- const cr=$('#clearRes');if(cr)cr.onclick=async()=>{
-  if(!confirm('¿Borrar resultados oficiales?'))return;
-  const key=prompt('Clave del organizador:');if(!key)return;
-  const r=await fetch(`${API}/results`,{method:'DELETE',headers:{'X-Admin-Key':key}});
-  if(!r.ok){alert('Clave incorrecta');return;}
-  renderBoard();};
+}
+
+/* ===================== RENDER: ADMIN ===================== */
+async function renderAdmin(){
+ if(!adminKey){
+  $('#view').innerHTML=`<div style="max-width:380px;margin:60px auto">
+    <div class="section-h"><h2>Panel Admin</h2></div>
+    <div class="trophy" style="flex-direction:column;gap:12px;align-items:stretch">
+     <p style="font-size:13px;color:var(--muted);line-height:1.5">Introduce la clave del organizador para gestionar los resultados oficiales.</p>
+     <input id="adminKeyIn" type="password" placeholder="Clave del organizador" autocomplete="off">
+     <button class="btn" id="adminKeyBtn">Entrar al panel</button>
+    </div></div>`;
+  $('#adminKeyBtn').onclick=async()=>{
+   const key=$('#adminKeyIn').value.trim();if(!key)return;
+   $('#adminKeyBtn').textContent='Verificando…';
+   const r=await fetch(`${API}/admin/ping`,{headers:{'X-Admin-Key':key}});
+   if(!r.ok){$('#adminKeyBtn').textContent='Entrar al panel';alert('Clave incorrecta');return;}
+   adminKey=key;sessionStorage.setItem('admin_key',key);renderAdmin();
+  };
+  $('#adminKeyIn').onkeydown=e=>{if(e.key==='Enter')$('#adminKeyBtn').click();};
+  return;
+ }
+ const res=await fetch(`${API}/results`).then(r=>r.ok?r.json():null);
+ ADMIN_RES=res||{matches:{},trophies:{},podio:{}};
+ const opts=`<option value="">— Selecciona equipo —</option>`+ALL_TEAMS.slice().sort((a,b)=>a.nm.localeCompare(b.nm)).map(t=>`<option value="${t.nm}">${t.fl} ${t.nm}</option>`).join('');
+ let html=`<div class="section-h"><h2>Resultados Oficiales</h2>
+   <div class="tools"><button class="tbtn" id="logoutAdmin">Salir</button><button class="tbtn" id="clearAdminRes" style="color:var(--red)">Borrar todo</button></div></div>
+   <div class="subhead">⚽ Marcadores de grupo</div><div class="grid">`;
+ GK.forEach(g=>{
+  html+=`<div class="group"><div class="gh"><b>Grupo ${g}</b></div><div class="matches">`;
+  [1,2,3].forEach(j=>{
+   html+=`<div class="jor">Jornada ${j}</div>`;
+   MATCHES.filter(m=>m.g===g&&m.j===j).forEach(m=>{
+    const v=ADMIN_RES.matches[m.no]||{};
+    html+=`<div class="match"><span class="mno">M${m.no}</span>
+      <div class="side"><span class="fl">${m.h.fl}</span><span class="nm">${m.h.nm}</span></div>
+      <input class="sc${v.h!=null&&v.h!==''?' set':''}" inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="h" value="${v.h!=null?v.h:''}">
+      <span class="vs">-</span>
+      <input class="sc${v.a!=null&&v.a!==''?' set':''}" inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="a" value="${v.a!=null?v.a:''}">
+      <div class="side away"><span class="fl">${m.a.fl}</span><span class="nm">${m.a.nm}</span></div></div>`;
+   });
+  });
+  html+=`</div></div>`;
+ });
+ html+=`</div><div class="subhead">🏅 Trofeos y podio</div>`;
+ TROPHIES.forEach(t=>{const v=ADMIN_RES.trophies[t.id];
+  const f=t.type==='team'?`<div class="field"><select data-tr="${t.id}">${opts}</select></div>`
+   :`<div class="field"><input type="text" data-tr="${t.id}" maxlength="40" placeholder="${t.ph}" value="${v?esc(v):''}"></div>`;
+  html+=`<div class="trophy"><div class="ti">${t.ic}</div><div class="tx"><h3>${t.name}</h3><p>${t.desc}</p>${f}</div><div class="pts">+${t.pts}</div></div>`;});
+ PODIO.forEach(p=>{html+=`<div class="trophy"><div class="ti">${p.ic}</div><div class="tx"><h3>${p.name}</h3><p>${p.desc}</p>
+   <div class="field"><select data-pod="${p.id}">${opts}</select></div></div><div class="pts">+${p.pts}</div></div>`;});
+ $('#view').innerHTML=html;
+ $('#view').querySelectorAll('input.sc').forEach(inp=>{inp.oninput=()=>{
+  inp.value=inp.value.replace(/[^0-9]/g,'').slice(0,2);
+  const no=+inp.dataset.m,s=inp.dataset.s;
+  ADMIN_RES.matches[no]=ADMIN_RES.matches[no]||{h:'',a:''};
+  ADMIN_RES.matches[no][s]=inp.value;
+  inp.classList.toggle('set',inp.value!=='');
+  saveAdminResults();};});
+ $('#view').querySelectorAll('select[data-tr]').forEach(s=>{s.value=ADMIN_RES.trophies[s.dataset.tr]||'';s.onchange=()=>{ADMIN_RES.trophies[s.dataset.tr]=s.value;saveAdminResults();};});
+ $('#view').querySelectorAll('input[data-tr]').forEach(i=>{i.oninput=()=>{ADMIN_RES.trophies[i.dataset.tr]=i.value;saveAdminResults();};});
+ $('#view').querySelectorAll('select[data-pod]').forEach(s=>{s.value=ADMIN_RES.podio[s.dataset.pod]||'';s.onchange=()=>{ADMIN_RES.podio[s.dataset.pod]=s.value;saveAdminResults();};});
+ $('#logoutAdmin').onclick=()=>{adminKey=null;sessionStorage.removeItem('admin_key');renderAdmin();};
+ $('#clearAdminRes').onclick=async()=>{
+  if(!confirm('¿Borrar todos los resultados oficiales?'))return;
+  const r=await fetch(`${API}/results`,{method:'DELETE',headers:{'X-Admin-Key':adminKey}});
+  if(!r.ok){alert('Error al borrar');return;}
+  RESULTS=null;renderAdmin();};
+}
+
+let adminSaveTimer;
+async function saveAdminResults(){
+ clearTimeout(adminSaveTimer);
+ adminSaveTimer=setTimeout(async()=>{
+  const r=await fetch(`${API}/results`,{method:'PUT',headers:{'Content-Type':'application/json','X-Admin-Key':adminKey},body:JSON.stringify(ADMIN_RES)});
+  if(r.ok){RESULTS={...ADMIN_RES};flashSaved();}
+  else{adminKey=null;sessionStorage.removeItem('admin_key');alert('Sesión admin expirada, vuelve a entrar');renderAdmin();}
+ },500);
 }
 
 /* ===================== RENDER: REGLAS ===================== */
@@ -539,7 +605,7 @@ function renderRules(){
 
 /* ===================== TABS / LAUNCH ===================== */
 function setTab(t){curTab=t;document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
- if(t==='matches')renderMatches();else if(t==='trophies')renderTrophies();else if(t==='board')renderBoard();else renderRules();}
+ if(t==='matches')renderMatches();else if(t==='trophies')renderTrophies();else if(t==='board')renderBoard();else if(t==='admin')renderAdmin();else renderRules();}
 function launch(){$('#topbar').style.display='block';$('#app').style.display='block';
  $('#meChip').innerHTML=`<span>Jugando como</span><b>${ME.name}</b>`;
  document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
