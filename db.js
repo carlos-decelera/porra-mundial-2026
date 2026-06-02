@@ -7,7 +7,8 @@ async function initDb() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS participants (
       id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
+      name TEXT NOT NULL UNIQUE,
+      pin_hash TEXT NOT NULL DEFAULT '',
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
     CREATE TABLE IF NOT EXISTS predictions (
@@ -21,6 +22,14 @@ async function initDb() {
       data JSONB,
       updated_at TIMESTAMPTZ DEFAULT NOW()
     );
+  `);
+  // Migrations for existing deployments
+  await pool.query(`ALTER TABLE participants ADD COLUMN IF NOT EXISTS pin_hash TEXT NOT NULL DEFAULT ''`);
+  await pool.query(`
+    DO $$ BEGIN
+      ALTER TABLE participants ADD CONSTRAINT participants_name_unique UNIQUE (name);
+    EXCEPTION WHEN duplicate_table THEN NULL;
+    END $$;
   `);
 }
 

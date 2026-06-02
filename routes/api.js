@@ -1,5 +1,8 @@
 const { Router } = require('express');
+const crypto = require('crypto');
 const { pool } = require('../db');
+
+const hashPin = pin => crypto.createHash('sha256').update(`porra2026:${pin}`).digest('hex');
 
 const router = Router();
 
@@ -19,14 +22,33 @@ router.get('/participants', async (req, res) => {
 });
 
 router.post('/participants', async (req, res) => {
-  const { id, name } = req.body;
-  if (!id || !name) return res.status(400).json({ error: 'id and name required' });
+  const { id, name, pin } = req.body;
+  if (!id || !name || !pin) return res.status(400).json({ error: 'id, name and pin required' });
+  if (!/^\d{4,6}$/.test(String(pin))) return res.status(400).json({ error: 'PIN must be 4-6 digits' });
   try {
-    await pool.query(
-      'INSERT INTO participants(id,name) VALUES($1,$2) ON CONFLICT(id) DO UPDATE SET name=$2',
-      [id, name]
+    const { rows } = await pool.query(
+      `INSERT INTO participants(id,name,pin_hash) VALUES($1,$2,$3)
+       ON CONFLICT(name) DO NOTHING
+       RETURNING id, name`,
+      [id, name, hashPin(String(pin))]
     );
-    res.json({ id, name });
+    if (!rows.length) return res.status(409).json({ error: 'Ese nombre ya está cogido, elige otro' });
+    res.json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/login', async (req, res) => {
+  const { name, pin } = req.body;
+  if (!name || !pin) return res.status(400).json({ error: 'name and pin required' });
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, name FROM participants WHERE name=$1 AND pin_hash=$2',
+      [name, hashPin(String(pin))]
+    );
+    if (!rows.length) return res.status(401).json({ error: 'Nombre o PIN incorrecto' });
+    res.json(rows[0]);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
