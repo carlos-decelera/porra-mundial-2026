@@ -631,7 +631,7 @@ function renderRules(){
 /* ===================== TABS / LAUNCH ===================== */
 function setTab(t){curTab=t;document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
  if(t==='matches')renderMatches();else if(t==='trophies')renderTrophies();else if(t==='board')renderBoard();else if(t==='admin')renderAdmin();else renderRules();}
-function launch(){$('#topbar').style.display='block';$('#app').style.display='block';
+function launch(){$('#onboard').innerHTML='';$('#topbar').style.display='block';$('#app').style.display='block';
  $('#meChip').innerHTML=`<span>Jugando como</span><b>${ME.name}</b>`;
  document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
  tickCount();setInterval(tickCount,1000);updateCounters();setTab('matches');}
@@ -639,6 +639,6 @@ function launch(){$('#topbar').style.display='block';$('#app').style.display='bl
 /* ===================== INIT ===================== */
 (async function(){ME=await S.get('me',false);
  if(ME){const pr=await S.get('pred:'+ME.id);if(pr){MY.matches=pr.matches||{};MY.trophies=pr.trophies||{};MY.podio=pr.podio||{};}
-  launch();}else showOnboard();})();
+  launch();}else{$('#onboard').innerHTML='';showOnboard();}})();
 </script>
 </body></html>
