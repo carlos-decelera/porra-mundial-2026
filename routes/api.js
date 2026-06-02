@@ -44,11 +44,18 @@ router.post('/login', async (req, res) => {
   if (!name || !pin) return res.status(400).json({ error: 'name and pin required' });
   try {
     const { rows } = await pool.query(
-      'SELECT id, name FROM participants WHERE name=$1 AND pin_hash=$2',
-      [name, hashPin(String(pin))]
+      'SELECT id, name, pin_hash FROM participants WHERE name=$1',
+      [name]
     );
     if (!rows.length) return res.status(401).json({ error: 'Nombre o PIN incorrecto' });
-    res.json(rows[0]);
+    const user = rows[0];
+    if (user.pin_hash === '') {
+      // Usuario pre-PIN: establece el PIN ahora y entra
+      await pool.query('UPDATE participants SET pin_hash=$1 WHERE id=$2', [hashPin(String(pin)), user.id]);
+    } else if (user.pin_hash !== hashPin(String(pin))) {
+      return res.status(401).json({ error: 'Nombre o PIN incorrecto' });
+    }
+    res.json({ id: user.id, name: user.name });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
