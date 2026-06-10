@@ -194,6 +194,7 @@
 <script>
 /* ===================== DATOS ===================== */
 const KICKOFF=new Date('2026-06-11T19:00:00Z'); // 11 jun 21:00 CEST
+const LOCKED=new Date()>=KICKOFF;
 // Orden de equipos = orden oficial de posición en el grupo (verificado en capturas para A–H).
 // Ranking FIFA: exacto para A–H (capturas); aproximado para I–L.
 const GROUPS={
@@ -510,7 +511,7 @@ const initials=n=>n.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toU
 const esc=s=>String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
 function flashSaved(){const p=$('#savePill');p.classList.add('show');clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('show'),1200);}
-function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{await S.set('pred:'+ME.id,{name:ME.name,...MY});flashSaved();},500);}
+function queueSave(){if(LOCKED)return;clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{await S.set('pred:'+ME.id,{name:ME.name,...MY});flashSaved();},500);}
 
 /* ===================== CONTADORES ===================== */
 function matchSet(m){const v=MY.matches[m.no];return v&&v.h!==''&&v.h!=null&&v.a!==''&&v.a!=null;}
@@ -603,9 +604,9 @@ function showOnboard(){
 
 /* ===================== RENDER: PARTIDOS ===================== */
 function renderMatches(){
- let html=`<div class="section-h"><h2>Fase de Grupos</h2><div class="tools">
-   <button class="tbtn gold" id="wand">✨ Autocompletar</button><button class="tbtn" id="clr">Borrar</button></div></div>
-   <div class="grid">`;
+ const lockBanner=LOCKED?`<div style="background:rgba(244,196,48,.12);border:1px solid var(--gold-d);border-radius:12px;padding:13px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--gold)">🔒 Predicciones cerradas · El torneo ha comenzado</div>`:'';
+ const tools=LOCKED?`<span style="font-size:12px;color:var(--muted);font-weight:700">🔒 Cerrado</span>`:`<button class="tbtn gold" id="wand">✨ Autocompletar</button><button class="tbtn" id="clr">Borrar</button>`;
+ let html=lockBanner+`<div class="section-h"><h2>Fase de Grupos</h2><div class="tools">${tools}</div></div><div class="grid">`;
  GK.forEach((g,gi)=>{
   html+=`<div class="group"><div class="gh"><b>Grupo ${g}</b><span class="gc" id="gc_${g}"></span></div>
     <div class="standings" id="std_${g}">${standingsHTML(g)}</div>
@@ -619,9 +620,9 @@ function renderMatches(){
     const v=MY.matches[m.no]||{};
     html+=`<div class="match"><span class="mno">M${m.no}</span>
       <div class="side"><span class="fl">${m.h.fl}</span><span class="nm">${m.h.nm}</span></div>
-      <input class="sc${v.h!=null&&v.h!==''?' set':''}" inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="h" value="${v.h!=null?v.h:''}">
+      <input class="sc${v.h!=null&&v.h!==''?' set':''}"${LOCKED?' disabled':''} inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="h" value="${v.h!=null?v.h:''}">
       <span class="vs">-</span>
-      <input class="sc${v.a!=null&&v.a!==''?' set':''}" inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="a" value="${v.a!=null?v.a:''}">
+      <input class="sc${v.a!=null&&v.a!==''?' set':''}"${LOCKED?' disabled':''} inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="a" value="${v.a!=null?v.a:''}">
       <div class="side away"><span class="fl">${m.a.fl}</span><span class="nm">${m.a.nm}</span></div></div>`;
    });
   });
@@ -631,27 +632,29 @@ function renderMatches(){
  $('#view').innerHTML=html;
  // contadores por grupo
  GK.forEach(g=>{const n=MATCHES.filter(m=>m.g===g&&matchSet(m)).length;$('#gc_'+g).textContent=n+'/6';});
- // listeners sin re-render (preserva foco)
- $('#view').querySelectorAll('input.sc').forEach(inp=>{
-  inp.oninput=()=>{
-   const no=+inp.dataset.m, s=inp.dataset.s;
-   inp.value=inp.value.replace(/[^0-9]/g,'').slice(0,2);
-   MY.matches[no]=MY.matches[no]||{h:'',a:''};
-   MY.matches[no][s]=inp.value;
-   inp.classList.toggle('set',inp.value!=='');
-   const g=MATCHES.find(m=>m.no===no).g;
-   $('#std_'+g).innerHTML=standingsHTML(g);
-   $('#gc_'+g).textContent=MATCHES.filter(m=>m.g===g&&matchSet(m)).length+'/6';
-   updateCounters();queueSave();
+ if(!LOCKED){
+  // listeners sin re-render (preserva foco)
+  $('#view').querySelectorAll('input.sc').forEach(inp=>{
+   inp.oninput=()=>{
+    const no=+inp.dataset.m, s=inp.dataset.s;
+    inp.value=inp.value.replace(/[^0-9]/g,'').slice(0,2);
+    MY.matches[no]=MY.matches[no]||{h:'',a:''};
+    MY.matches[no][s]=inp.value;
+    inp.classList.toggle('set',inp.value!=='');
+    const g=MATCHES.find(m=>m.no===no).g;
+    $('#std_'+g).innerHTML=standingsHTML(g);
+    $('#gc_'+g).textContent=MATCHES.filter(m=>m.g===g&&matchSet(m)).length+'/6';
+    updateCounters();queueSave();
+   };
+  });
+  $('#wand').onclick=()=>{
+   if(!confirm('¿Autocompletar los partidos vacíos según el ranking FIFA? (mejor ranking gana 1-0, empate si están igualados)'))return;
+   MATCHES.forEach(m=>{if(matchSet(m))return;const dh=m.h.rk,da=m.a.rk;
+    MY.matches[m.no]= dh<da?{h:1,a:0}: dh>da?{h:0,a:1}:{h:1,a:1};});
+   updateCounters();queueSave();renderMatches();
   };
- });
- $('#wand').onclick=()=>{
-  if(!confirm('¿Autocompletar los partidos vacíos según el ranking FIFA? (mejor ranking gana 1-0, empate si están igualados)'))return;
-  MATCHES.forEach(m=>{if(matchSet(m))return;const dh=m.h.rk,da=m.a.rk;
-   MY.matches[m.no]= dh<da?{h:1,a:0}: dh>da?{h:0,a:1}:{h:1,a:1};});
-  updateCounters();queueSave();renderMatches();
- };
- $('#clr').onclick=()=>{if(confirm('¿Borrar todos los marcadores de grupos?')){MY.matches={};updateCounters();queueSave();renderMatches();}};
+  $('#clr').onclick=()=>{if(confirm('¿Borrar todos los marcadores de grupos?')){MY.matches={};updateCounters();queueSave();renderMatches();}};
+ }
  updateCounters();
 }
 
@@ -659,18 +662,20 @@ function renderMatches(){
 function renderTrophies(){
  const opts=`<option value="">— Selecciona equipo —</option>`+ALL_TEAMS.slice().sort((a,b)=>a.nm.localeCompare(b.nm))
    .map(t=>`<option value="${t.nm}">${t.fl} ${t.nm}</option>`).join('');
- let html=`<div class="subhead">🏅 Trofeos individuales · +2 cada uno</div>`;
+ const lockBanner=LOCKED?`<div style="background:rgba(244,196,48,.12);border:1px solid var(--gold-d);border-radius:12px;padding:13px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--gold)">🔒 Predicciones cerradas · El torneo ha comenzado</div>`:'';
+ const dis=LOCKED?' disabled':'';
+ let html=lockBanner+`<div class="subhead">🏅 Trofeos individuales · +2 cada uno</div>`;
  TROPHIES.forEach(t=>{const v=MY.trophies[t.id];let f;
-  if(t.type==='team')f=`<div class="field"><select data-tr="${t.id}">${opts}</select></div>`;
-  else f=`<div class="field"><div class="ac-wrap" data-tr="${t.id}"><input class="ac-inp" type="text" placeholder="${t.ph}" autocomplete="off" value="${v?esc(v):''}"><div class="ac-drop"></div></div></div>`;
+  if(t.type==='team')f=`<div class="field"><select${dis} data-tr="${t.id}">${opts}</select></div>`;
+  else f=`<div class="field"><div class="ac-wrap" data-tr="${t.id}"><input${dis} class="ac-inp" type="text" placeholder="${t.ph}" autocomplete="off" value="${v?esc(v):''}"><div class="ac-drop"></div></div></div>`;
   html+=`<div class="trophy"><div class="ti">${t.ic}</div><div class="tx"><h3>${t.name}</h3><p>${t.desc}</p>${f}</div><div class="pts">+${t.pts}</div></div>`;});
  html+=`<div class="subhead">🥇 Podio final · 3 / 2 / 2 pts</div>`;
  PODIO.forEach(p=>{html+=`<div class="trophy"><div class="ti">${p.ic}</div><div class="tx"><h3>${p.name}</h3><p>${p.desc}</p>
-   <div class="field"><select data-pod="${p.id}">${opts}</select></div></div><div class="pts">+${p.pts}</div></div>`;});
+   <div class="field"><select${dis} data-pod="${p.id}">${opts}</select></div></div><div class="pts">+${p.pts}</div></div>`;});
  $('#view').innerHTML=html;
- $('#view').querySelectorAll('select[data-tr]').forEach(s=>{s.value=MY.trophies[s.dataset.tr]||'';s.onchange=()=>{MY.trophies[s.dataset.tr]=s.value;updateCounters();queueSave();};});
- $('#view').querySelectorAll('.ac-wrap[data-tr]').forEach(w=>{attachAC(w,n=>{MY.trophies[w.dataset.tr]=n;updateCounters();queueSave();});});
- $('#view').querySelectorAll('select[data-pod]').forEach(s=>{s.value=MY.podio[s.dataset.pod]||'';s.onchange=()=>{MY.podio[s.dataset.pod]=s.value;updateCounters();queueSave();};});
+ $('#view').querySelectorAll('select[data-tr]').forEach(s=>{s.value=MY.trophies[s.dataset.tr]||'';if(!LOCKED)s.onchange=()=>{MY.trophies[s.dataset.tr]=s.value;updateCounters();queueSave();};});
+ if(!LOCKED)$('#view').querySelectorAll('.ac-wrap[data-tr]').forEach(w=>{attachAC(w,n=>{MY.trophies[w.dataset.tr]=n;updateCounters();queueSave();});});
+ $('#view').querySelectorAll('select[data-pod]').forEach(s=>{s.value=MY.podio[s.dataset.pod]||'';if(!LOCKED)s.onchange=()=>{MY.podio[s.dataset.pod]=s.value;updateCounters();queueSave();};});
 }
 
 /* ===================== SCORING ===================== */

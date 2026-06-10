@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const { pool } = require('../db');
 
 const hashPin = pin => crypto.createHash('sha256').update(`porra2026:${pin}`).digest('hex');
+const KICKOFF = new Date('2026-06-11T19:00:00Z');
 
 const router = Router();
 
@@ -74,6 +75,7 @@ router.get('/pred/:id', async (req, res) => {
 });
 
 router.put('/pred/:id', async (req, res) => {
+  if (new Date() >= KICKOFF) return res.status(403).json({ error: 'Las predicciones están cerradas. El torneo ya ha comenzado.' });
   try {
     await pool.query(
       `INSERT INTO predictions(participant_id,data,updated_at) VALUES($1,$2,NOW())
