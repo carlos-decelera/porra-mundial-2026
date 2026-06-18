@@ -75,7 +75,6 @@ router.get('/pred/:id', async (req, res) => {
 });
 
 router.put('/pred/:id', async (req, res) => {
-  if (new Date() >= KICKOFF) return res.status(403).json({ error: 'Las predicciones están cerradas. El torneo ya ha comenzado.' });
   try {
     await pool.query(
       `INSERT INTO predictions(participant_id,data,updated_at) VALUES($1,$2,NOW())

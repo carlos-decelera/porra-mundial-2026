@@ -142,10 +142,14 @@
   .loading{text-align:center;padding:60px 20px;color:var(--muted)}
   .spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--pitch);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 14px}
   @keyframes sp{to{transform:rotate(360deg)}}
-  details.admin{margin-top:22px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-  details.admin>summary{padding:13px 16px;cursor:pointer;font-weight:700;font-size:13px;color:var(--muted);list-style:none}
-  details.admin>summary::-webkit-details-marker{display:none}details.admin>summary:before{content:'⚙️ '}
-  .admin-body{padding:0 16px 16px;border-top:1px solid var(--line)}.admin-body p{font-size:12px;color:var(--muted);margin:12px 0;line-height:1.5}
+  .ko-team-sel{flex:1;width:auto;min-width:0;font-size:11px;padding:3px 5px;border-radius:8px}
+  .ko-sel-fl img{width:18px;height:18px;vertical-align:middle}
+  nav.adm-tabs{margin:0 0 18px;border-radius:11px}
+  nav.adm-tabs button{font-size:11.5px;padding:9px 4px;border-radius:9px}
+  nav.adm-tabs button .ic{font-size:14px}
+  .pen-btns{display:flex;gap:5px;margin-left:auto}
+  .pen-btn{font-size:18px;padding:3px 8px;border-radius:7px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);cursor:pointer;transition:.15s;line-height:1.3}
+  .pen-btn.on{background:var(--pitch);color:#04140a;border-color:transparent}
   .reveal{animation:rv .45s ease both}@keyframes rv{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   img.emoji{height:1em;width:1em;margin:0 .05em 0 .1em;vertical-align:-0.1em;display:inline-block}
 
@@ -167,6 +171,42 @@
   .trophy-result{font-size:12px;font-weight:700;margin-top:5px;padding:4px 9px;border-radius:7px;display:inline-flex;align-items:center;gap:5px}
   .trophy-result.exact{background:rgba(47,191,79,.15);color:var(--pitch)}
   .trophy-result.wrong{background:rgba(232,85,77,.1);color:var(--red)}
+
+  .ko-single{max-width:380px;margin:0 auto 22px}
+  .ko-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);transition:border-color .2s}
+  .ko-card.res-exact{border-color:var(--pitch);box-shadow:var(--shadow),0 0 14px rgba(47,191,79,.25)}
+  .ko-card.res-win{border-color:var(--gold-d);box-shadow:var(--shadow),0 0 12px rgba(244,196,48,.18)}
+  .ko-team{display:flex;align-items:center;gap:8px;padding:10px 12px}
+  .ko-team+.ko-team{border-top:1px solid var(--line)}
+  .bk-slot .ko-team{padding:6px 12px}
+  .ko-team .fl{font-size:18px;flex:0 0 auto}
+  .ko-team .nm{flex:1;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ko-footer{display:flex;align-items:center;justify-content:space-between;padding:5px 12px 7px;border-top:1px solid var(--line);background:var(--bg2);min-height:26px}
+  .ko-mno{font-size:9px;color:var(--muted2);font-weight:700;letter-spacing:.5px}
+  .bracket-wrap{overflow-x:auto;padding:0 0 60px;-webkit-overflow-scrolling:touch}
+  .bracket-row{display:flex;align-items:flex-start}
+  .bracket-col{display:flex;flex-direction:column;flex-shrink:0}
+  .bracket-col-hdr{height:38px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);white-space:nowrap}
+  .bracket-col-hdr-sp{height:38px;flex-shrink:0}
+  .bk-slot{box-sizing:border-box;display:flex;align-items:flex-start}
+  .bk-slot .ko-card{width:100%}
+  .bracket-svg-col{display:flex;flex-direction:column;flex-shrink:0}
+  .ko-team.pending .fl{opacity:.35}
+  .ko-team.pending .nm{color:var(--muted);font-style:italic;font-size:11px}
+  .ko-team.ko-win{background:linear-gradient(90deg,rgba(47,191,79,.22) 0%,rgba(47,191,79,.06) 55%,transparent 100%);position:relative}
+  .ko-team.ko-win::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 2px 2px 0;background:var(--pitch);box-shadow:0 0 8px var(--pitch),0 0 20px rgba(47,191,79,.6)}
+  .ko-team.ko-win .nm{color:var(--cream)!important;font-weight:800!important;text-shadow:0 0 10px rgba(47,191,79,.5)}
+  .ko-team.ko-win .ko-sc-big{text-shadow:0 0 10px rgba(244,196,48,.75)}
+  .ko-team.ko-win .fl{filter:drop-shadow(0 0 4px rgba(47,191,79,.7));transform:scale(1.1);display:inline-block}
+  .ko-pen-row{display:flex;align-items:center;justify-content:center;gap:7px;min-height:28px;border-top:1px solid var(--line);background:rgba(244,196,48,.08);padding:4px 12px}
+  .ko-pen-sc{width:28px!important;height:26px!important;font-size:14px!important}
+  .ko-badge{font-family:'Anton';font-size:9px;padding:1px 6px;border-radius:5px;letter-spacing:.5px;flex:0 0 auto}
+  .ko-sc-big{font-family:'Anton';font-size:15px;min-width:20px;text-align:center;flex:0 0 auto}
+  .ko-done{border-color:var(--pitch-d)!important}
+  .ko-round-pills{display:flex;gap:6px;padding:0 0 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .ko-round-pills::-webkit-scrollbar{display:none}
+  .ko-pill{flex:0 0 auto;padding:6px 14px;border-radius:99px;font-weight:800;font-size:11.5px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;transition:.15s;-webkit-tap-highlight-color:transparent}
+  .ko-pill.on{background:linear-gradient(145deg,var(--pitch),var(--pitch-d));color:#04140a;border-color:transparent}
 </style>
 
 </head><body><div id="onboard"><div class="veil"><div class="card reveal">
@@ -194,7 +234,8 @@
 <main class="wrap" id="app" style="display:none">
   <div class="hero"><div class="kick">⚽ El Mundial arranca en</div><div class="count" id="count"></div></div>
   <nav class="tabs">
-    <button data-tab="matches" class="on"><span class="ic">⚽</span>Partidos</button>
+    <button data-tab="matches" class="on"><span class="ic">⚽</span>Grupos</button>
+    <button data-tab="knockout"><span class="ic">⚡</span>Eliminatoria</button>
     <button data-tab="trophies"><span class="ic">🏅</span>Trofeos</button>
     <button data-tab="board"><span class="ic">📊</span>Ranking</button>
     <button data-tab="spectate"><span class="ic">👥</span>Rivales</button>
@@ -459,6 +500,19 @@ const PODIO=[
  {id:'runner',ic:'🥈',name:'Subcampeón',desc:'Pierde la final',pts:2},
  {id:'third',ic:'🥉',name:'Tercer puesto',desc:'Gana el partido por el bronce',pts:2}
 ];
+const ROUNDS=[
+ {id:'r32',label:'Dieciseisavos de Final',short:'1/16'},
+ {id:'r16',label:'Octavos de Final',short:'Octavos'},
+ {id:'qf',label:'Cuartos de Final',short:'Cuartos'},
+ {id:'sf',label:'Semifinales',short:'Semis'},
+ {id:'third',label:'Tercer Puesto',short:'3.er Puesto'},
+ {id:'final',label:'Final',short:'Final'}
+];
+const teamInfo=nm=>{
+ if(!nm) return {fl:'❓',nm:'?',rk:99,pending:true};
+ if(nm.startsWith('~M')) return {fl:'❓',nm:`G.${nm.slice(1)}`,rk:99,pending:true};
+ return ALL_TEAMS.find(t=>t.nm===nm)||{fl:'🏳️',nm,rk:99};
+};
 const PTS_WINNER=1, PTS_EXACT=2; // marcador exacto = +1 (ganador) +2 (exacto) = 3
 
 /* ===================== STORAGE ===================== */
@@ -519,6 +573,7 @@ const S = {
 let ME=null, PARTICIPANTS=[], RESULTS=null, curTab='matches', saveTimer=null;
 let MY={matches:{},trophies:{},podio:{}};
 let adminKey=sessionStorage.getItem('admin_key')||null;
+let adminTab='groups';
 let spectateId=null;
 let ADMIN_RES={matches:{},trophies:{},podio:{}};
 const uid=()=>'p_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
@@ -527,7 +582,7 @@ const initials=n=>n.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toU
 const esc=s=>String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
 function flashSaved(){const p=$('#savePill');p.classList.add('show');clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('show'),1200);}
-function queueSave(){if(LOCKED)return;clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{await S.set('pred:'+ME.id,{name:ME.name,...MY});flashSaved();},500);}
+function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{await S.set('pred:'+ME.id,{name:ME.name,...MY});flashSaved();},500);}
 
 /* ===================== CONTADORES ===================== */
 function matchSet(m){const v=MY.matches[m.no];return v&&v.h!==''&&v.h!=null&&v.a!==''&&v.a!=null;}
@@ -692,7 +747,7 @@ async function renderMatches(){
 async function renderTrophies(){
  if(!RESULTS) RESULTS=await S.get('results');
  const opts=`<option value="">— Selecciona equipo —</option>`+ALL_TEAMS.slice().sort((a,b)=>a.nm.localeCompare(b.nm))
-   .map(t=>`<option value="${t.nm}">${t.fl} ${t.nm}</option>`).join('');
+   .map(t=>`<option value="${t.nm}">${t.nm}</option>`).join('');
  const lockBanner=LOCKED?`<div style="background:rgba(244,196,48,.12);border:1px solid var(--gold-d);border-radius:12px;padding:13px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--gold)">🔒 Predicciones cerradas · El torneo ha comenzado</div>`:'';
  const dis=LOCKED?' disabled':'';
  let html=lockBanner+`<div class="subhead">🏅 Trofeos individuales · +2 cada uno</div>`;
@@ -726,6 +781,13 @@ function scoreOf(pred){
   const po=Math.sign(p.h-p.a),ro=Math.sign(r.h-r.a);
   if(po===ro)s+=PTS_WINNER;
   if(+p.h===+r.h&&+p.a===+r.a)s+=PTS_EXACT;});
+ if(RESULTS.knockout_matches){
+  RESULTS.knockout_matches.forEach(m=>{const p=pred.matches&&pred.matches[m.no],r=RESULTS.matches&&RESULTS.matches[m.no];
+   if(!p||!r||p.h===''||p.h==null||r.h===''||r.h==null)return;
+   const po=Math.sign(+p.h-+p.a),ro=Math.sign(+r.h-+r.a);
+   if(po===ro)s+=PTS_WINNER;
+   if(+p.h===+r.h&&+p.a===+r.a)s+=PTS_EXACT;});
+ }
  TROPHIES.forEach(t=>{const p=pred.trophies&&pred.trophies[t.id],r=RESULTS.trophies&&RESULTS.trophies[t.id];
   if(p&&r&&String(p).trim().toLowerCase()===String(r).trim().toLowerCase())s+=t.pts;});
  PODIO.forEach(t=>{const p=pred.podio&&pred.podio[t.id],r=RESULTS.podio&&RESULTS.podio[t.id];
@@ -791,10 +853,46 @@ async function renderAdmin(){
  }
  const res=await fetch(`${API}/results`).then(r=>r.ok?r.json():null);
  ADMIN_RES=res||{matches:{},trophies:{},podio:{}};
- const opts=`<option value="">— Selecciona equipo —</option>`+ALL_TEAMS.slice().sort((a,b)=>a.nm.localeCompare(b.nm)).map(t=>`<option value="${t.nm}">${t.fl} ${t.nm}</option>`).join('');
- let html=`<div class="section-h"><h2>Resultados Oficiales</h2>
+ const ATABS=[
+  {id:'groups',ic:'⚽',name:'Grupos'},
+  {id:'trophies',ic:'🏅',name:'Trofeos'},
+  {id:'knockout',ic:'⚡',name:'Cuadro'},
+  {id:'players',ic:'👥',name:'Jugadores'},
+ ];
+ $('#view').innerHTML=`
+  <div class="section-h"><h2>Panel Admin</h2>
    <div class="tools"><button class="tbtn" id="logoutAdmin">Salir</button><button class="tbtn" id="clearAdminRes" style="color:var(--red)">Borrar todo</button></div></div>
-   <div class="subhead">⚽ Marcadores de grupo</div><div class="grid">`;
+  <nav class="tabs adm-tabs">
+   ${ATABS.map(t=>`<button data-atab="${t.id}"${adminTab===t.id?' class="on"':''}><span class="ic">${t.ic}</span>${t.name}</button>`).join('')}
+  </nav>
+  <div id="adm-body"></div>`;
+ $('#logoutAdmin').onclick=()=>{adminKey=null;sessionStorage.removeItem('admin_key');renderAdmin();};
+ $('#clearAdminRes').onclick=async()=>{
+  if(!confirm('¿Borrar todos los resultados oficiales?'))return;
+  const r=await fetch(`${API}/results`,{method:'DELETE',headers:{'X-Admin-Key':adminKey}});
+  if(!r.ok){alert('Error al borrar');return;}
+  RESULTS=null;ADMIN_RES=null;renderAdmin();};
+ $('#view').querySelectorAll('[data-atab]').forEach(b=>{
+  b.onclick=()=>{
+   adminTab=b.dataset.atab;
+   $('#view').querySelectorAll('[data-atab]').forEach(x=>x.classList.toggle('on',x.dataset.atab===adminTab));
+   renderAdminBody();
+  };
+ });
+ renderAdminBody();
+}
+
+async function renderAdminBody(){
+ const body=document.getElementById('adm-body');
+ if(!body)return;
+ if(adminTab==='groups') renderAdminGroups(body);
+ else if(adminTab==='trophies') renderAdminTrophies(body);
+ else if(adminTab==='knockout') renderAdminKnockout(body);
+ else await renderAdminPlayers(body);
+}
+
+function renderAdminGroups(body){
+ let html=`<div class="grid">`;
  GK.forEach(g=>{
   html+=`<div class="group"><div class="gh"><b>Grupo ${g}</b></div><div class="matches">`;
   [1,2,3].forEach(j=>{
@@ -811,41 +909,159 @@ async function renderAdmin(){
   });
   html+=`</div></div>`;
  });
- html+=`</div><div class="subhead">🏅 Trofeos y podio</div>`;
- TROPHIES.forEach(t=>{const v=ADMIN_RES.trophies[t.id];
-  const f=t.type==='team'?`<div class="field"><select data-tr="${t.id}">${opts}</select></div>`
-   :`<div class="field"><div class="ac-wrap" data-tr="${t.id}"><input class="ac-inp" type="text" placeholder="${t.ph}" autocomplete="off" value="${v?esc(v):''}"><div class="ac-drop"></div></div></div>`;
-  html+=`<div class="trophy"><div class="ti">${t.ic}</div><div class="tx"><h3>${t.name}</h3><p>${t.desc}</p>${f}</div><div class="pts">+${t.pts}</div></div>`;});
- PODIO.forEach(p=>{html+=`<div class="trophy"><div class="ti">${p.ic}</div><div class="tx"><h3>${p.name}</h3><p>${p.desc}</p>
-   <div class="field"><select data-pod="${p.id}">${opts}</select></div></div><div class="pts">+${p.pts}</div></div>`;});
- $('#view').innerHTML=html;
- $('#view').querySelectorAll('input.sc').forEach(inp=>{inp.oninput=()=>{
+ html+=`</div>`;
+ body.innerHTML=html;
+ body.querySelectorAll('input.sc').forEach(inp=>{inp.oninput=()=>{
   inp.value=inp.value.replace(/[^0-9]/g,'').slice(0,2);
   const no=+inp.dataset.m,s=inp.dataset.s;
   ADMIN_RES.matches[no]=ADMIN_RES.matches[no]||{h:'',a:''};
   ADMIN_RES.matches[no][s]=inp.value;
   inp.classList.toggle('set',inp.value!=='');
   saveAdminResults();};});
- $('#view').querySelectorAll('select[data-tr]').forEach(s=>{s.value=ADMIN_RES.trophies[s.dataset.tr]||'';s.onchange=()=>{ADMIN_RES.trophies[s.dataset.tr]=s.value;saveAdminResults();};});
- $('#view').querySelectorAll('.ac-wrap[data-tr]').forEach(w=>{attachAC(w,n=>{ADMIN_RES.trophies[w.dataset.tr]=n;saveAdminResults();});});
- $('#view').querySelectorAll('select[data-pod]').forEach(s=>{s.value=ADMIN_RES.podio[s.dataset.pod]||'';s.onchange=()=>{ADMIN_RES.podio[s.dataset.pod]=s.value;saveAdminResults();};});
- $('#logoutAdmin').onclick=()=>{adminKey=null;sessionStorage.removeItem('admin_key');renderAdmin();};
- $('#clearAdminRes').onclick=async()=>{
-  if(!confirm('¿Borrar todos los resultados oficiales?'))return;
-  const r=await fetch(`${API}/results`,{method:'DELETE',headers:{'X-Admin-Key':adminKey}});
-  if(!r.ok){alert('Error al borrar');return;}
-  RESULTS=null;renderAdmin();};
+}
 
- // Participants section
+function renderAdminTrophies(body){
+ const opts=`<option value="">— Selecciona equipo —</option>`+ALL_TEAMS.slice().sort((a,b)=>a.nm.localeCompare(b.nm)).map(t=>`<option value="${t.nm}">${t.nm}</option>`).join('');
+ let html='';
+ TROPHIES.forEach(t=>{const v=ADMIN_RES.trophies[t.id];
+  const f=t.type==='team'?`<div class="field"><select data-tr="${t.id}">${opts}</select></div>`
+   :`<div class="field"><div class="ac-wrap" data-tr="${t.id}"><input class="ac-inp" type="text" placeholder="${t.ph}" autocomplete="off" value="${v?esc(v):''}"><div class="ac-drop"></div></div></div>`;
+  html+=`<div class="trophy"><div class="ti">${t.ic}</div><div class="tx"><h3>${t.name}</h3><p>${t.desc}</p>${f}</div><div class="pts">+${t.pts}</div></div>`;});
+ PODIO.forEach(p=>{html+=`<div class="trophy"><div class="ti">${p.ic}</div><div class="tx"><h3>${p.name}</h3><p>${p.desc}</p>
+   <div class="field"><select data-pod="${p.id}">${opts}</select></div></div><div class="pts">+${p.pts}</div></div>`;});
+ body.innerHTML=html;
+ body.querySelectorAll('select[data-tr]').forEach(s=>{s.value=ADMIN_RES.trophies[s.dataset.tr]||'';s.onchange=()=>{ADMIN_RES.trophies[s.dataset.tr]=s.value;saveAdminResults();};});
+ body.querySelectorAll('.ac-wrap[data-tr]').forEach(w=>{attachAC(w,n=>{ADMIN_RES.trophies[w.dataset.tr]=n;saveAdminResults();});});
+ body.querySelectorAll('select[data-pod]').forEach(s=>{s.value=ADMIN_RES.podio[s.dataset.pod]||'';s.onchange=()=>{ADMIN_RES.podio[s.dataset.pod]=s.value;saveAdminResults();};});
+}
+
+function buildKoAdminCard(m){
+ const rv=ADMIN_RES.matches[m.no]||{};
+ const hi=teamInfo(m.h),ai=teamInfo(m.a);
+ const hasRes=rv.h!=null&&rv.h!==''&&rv.a!=null&&rv.a!=='';
+ const isDraw=hasRes&&+rv.h===+rv.a;
+ const winOff=hasRes?(+rv.h>+rv.a?'h':+rv.a>+rv.h?'a':(rv.w||null)):null;
+ const penBtns=isDraw?`<div class="pen-btns">
+   <button class="pen-btn${rv.w==='h'?' on':''}" data-pen="${m.no}" data-side="h">${hi.pending?'🏠':hi.fl}</button>
+   <button class="pen-btn${rv.w==='a'?' on':''}" data-pen="${m.no}" data-side="a">${ai.pending?'✈️':ai.fl}</button>
+  </div>`:'';
+ const editable=m.round==='r32';
+ const teamOptsFn=sel=>'<option value="">— Equipo —</option>'+ALL_TEAMS.slice().sort((a,b)=>a.nm.localeCompare(b.nm)).map(t=>`<option value="${t.nm}"${t.nm===sel?' selected':''}>${t.nm}</option>`).join('');
+ const hInner=editable
+  ?`<span class="fl ko-sel-fl" data-kmt="${m.no}" data-s="h">${m.h&&!hi.pending?hi.fl:''}</span><select class="ko-team-sel" data-kmt="${m.no}" data-s="h">${teamOptsFn(m.h||'')}</select>`
+  :`<span class="fl">${hi.fl}</span><span class="nm">${hi.nm}</span>`;
+ const aInner=editable
+  ?`<span class="fl ko-sel-fl" data-kmt="${m.no}" data-s="a">${m.a&&!ai.pending?ai.fl:''}</span><select class="ko-team-sel" data-kmt="${m.no}" data-s="a">${teamOptsFn(m.a||'')}</select>`
+  :`<span class="fl">${ai.fl}</span><span class="nm">${ai.nm}</span>`;
+ return `<div class="ko-card">
+  <div class="ko-team${hi.pending&&!editable?' pending':''}${winOff==='h'?' ko-win':''}">
+   ${hInner}
+   <input class="sc${rv.h!=null&&rv.h!==''?' set':''}" inputmode="numeric" maxlength="2" data-km="${m.no}" data-s="h" value="${rv.h!=null?rv.h:''}">
+  </div>
+  <div class="ko-team${ai.pending&&!editable?' pending':''}${winOff==='a'?' ko-win':''}">
+   ${aInner}
+   <input class="sc${rv.a!=null&&rv.a!==''?' set':''}" inputmode="numeric" maxlength="2" data-km="${m.no}" data-s="a" value="${rv.a!=null?rv.a:''}">
+  </div>
+  <div class="ko-footer"><span class="ko-mno">M${m.no}</span>${penBtns}</div>
+ </div>`;
+}
+
+function renderAdminKnockout(body){
+ body.innerHTML=`<div id="ko-adm-bracket"></div>`;
+ _rebuildAdminBracket(body);
+}
+
+function _rebuildAdminBracket(body){
+ const el=body.querySelector('#ko-adm-bracket');
+ if(!el)return;
+ const km2=ADMIN_RES.knockout_matches||[];
+ if(!km2.length){
+  el.innerHTML=`<div style="text-align:center;padding:30px 20px">
+   <p style="font-size:13px;color:var(--muted);margin-bottom:16px">El cuadro eliminatorio no está inicializado todavía.</p>
+   <button class="tbtn gold" id="koInit">⚽ Generar estructura del cuadro</button>
+  </div>`;
+  el.querySelector('#koInit').onclick=async()=>{
+   ADMIN_RES.knockout_matches=[
+    ...Array.from({length:16},(_,i)=>({no:73+i,round:'r32',h:null,a:null})),
+    ...Array.from({length:8},(_,i)=>({no:89+i,round:'r16',h:null,a:null})),
+    ...Array.from({length:4},(_,i)=>({no:97+i,round:'qf',h:null,a:null})),
+    ...Array.from({length:2},(_,i)=>({no:101+i,round:'sf',h:null,a:null})),
+    {no:103,round:'third',h:null,a:null},
+    {no:104,round:'final',h:null,a:null}
+   ];
+   const r=await fetch(`${API}/results`,{method:'PUT',headers:{'Content-Type':'application/json','X-Admin-Key':adminKey},body:JSON.stringify(ADMIN_RES)});
+   if(r.ok){RESULTS={...ADMIN_RES};_rebuildAdminBracket(body);}
+   else{adminKey=null;sessionStorage.removeItem('admin_key');alert('Sesión admin expirada');renderAdmin();}
+  };
+  return;
+ }
+ // Asegura que siempre haya 16 partidos en r32
+ const r32count=km2.filter(m=>m.round==='r32').length;
+ if(r32count<16){
+  const existingNos=new Set(km2.map(m=>m.no));
+  const curMax=km2.length?Math.max(...km2.map(m=>m.no)):72;
+  for(let i=r32count;i<16;i++) km2.push({no:curMax+1+i-r32count,round:'r32',h:null,a:null});
+  ADMIN_RES.knockout_matches=km2;
+  fetch(`${API}/results`,{method:'PUT',headers:{'Content-Type':'application/json','X-Admin-Key':adminKey},body:JSON.stringify(ADMIN_RES)});
+ }
+ const enriched=computeEffectiveTeams(km2,ADMIN_RES.matches);
+ el.innerHTML=buildBracketHTML(enriched,buildKoAdminCard);
+ tw(el);
+ el.querySelectorAll('input[data-km]').forEach(inp=>{
+  inp.oninput=()=>{
+   inp.value=inp.value.replace(/[^0-9]/g,'').slice(0,2);
+   const no=+inp.dataset.km,s=inp.dataset.s;
+   ADMIN_RES.matches[no]=ADMIN_RES.matches[no]||{h:'',a:''};
+   ADMIN_RES.matches[no][s]=inp.value;
+   inp.classList.toggle('set',inp.value!=='');
+   saveAdminResults(()=>_rebuildAdminBracket(body));
+  };
+ });
+ el.querySelectorAll('.pen-btns').forEach(c=>bindPenBtns(c,()=>_rebuildAdminBracket(body)));
+ el.querySelectorAll('select.ko-team-sel').forEach(sel=>{
+  sel.onchange=async()=>{
+   const no=+sel.dataset.kmt,s=sel.dataset.s;
+   const km=(ADMIN_RES.knockout_matches||[]).find(m=>m.no===no);
+   if(!km)return;
+   km[s]=sel.value||null;
+   // actualizar bandera junto al select
+   const flSpan=el.querySelector(`.ko-sel-fl[data-kmt="${no}"][data-s="${s}"]`);
+   if(flSpan){
+    const team=ALL_TEAMS.find(t=>t.nm===sel.value);
+    flSpan.textContent=team?team.fl:'';
+    if(team)tw(flSpan);
+   }
+   const r=await fetch(`${API}/results`,{method:'PUT',headers:{'Content-Type':'application/json','X-Admin-Key':adminKey},body:JSON.stringify(ADMIN_RES)});
+   if(r.ok)RESULTS={...ADMIN_RES};
+   else{adminKey=null;sessionStorage.removeItem('admin_key');alert('Sesión admin expirada');renderAdmin();}
+  };
+ });
+}
+
+function bindPenBtns(container,cb){
+ container.querySelectorAll('.pen-btn').forEach(btn=>{
+  btn.onclick=()=>{
+   const no=+btn.dataset.pen,side=btn.dataset.side;
+   ADMIN_RES.matches[no]=ADMIN_RES.matches[no]||{h:'',a:''};
+   ADMIN_RES.matches[no].w=side;
+   container.querySelectorAll('.pen-btn').forEach(b=>b.classList.toggle('on',b.dataset.side===side));
+   saveAdminResults(cb);
+  };
+ });
+}
+
+async function renderAdminPlayers(body){
+ body.innerHTML=`<div class="loading"><div class="spin"></div>Cargando…</div>`;
  const parts=await fetch(`${API}/admin/participants`,{headers:{'X-Admin-Key':adminKey}}).then(r=>r.ok?r.json():[]);
- const phtml=parts.map(p=>`<div class="lb-row" style="gap:10px">
-   <div class="av">${initials(p.name)}</div>
-   <div class="info"><b>${esc(p.name)}</b><small>${p.id}</small></div>
-   <button class="tbtn" data-pid="${p.id}" data-pname="${esc(p.name)}">Resetear PIN</button>
- </div>`).join('');
- $('#view').insertAdjacentHTML('beforeend',`
-   <div class="subhead" style="margin-top:28px">👥 Participantes</div>${phtml}`);
- $('#view').querySelectorAll('button[data-pid]').forEach(btn=>{
+ const phtml=parts.length
+  ?parts.map(p=>`<div class="lb-row" style="gap:10px">
+    <div class="av">${initials(p.name)}</div>
+    <div class="info"><b>${esc(p.name)}</b><small>${p.id}</small></div>
+    <button class="tbtn" data-pid="${p.id}" data-pname="${esc(p.name)}">Resetear PIN</button>
+   </div>`).join('')
+  :`<p style="font-size:13px;color:var(--muted);padding:8px 2px">Sin participantes aún.</p>`;
+ body.innerHTML=phtml;
+ body.querySelectorAll('button[data-pid]').forEach(btn=>{
   btn.onclick=async()=>{
    const pin=prompt(`Nuevo PIN para ${btn.dataset.pname} (4-6 dígitos):`);
    if(!pin||!/^\d{4,6}$/.test(pin)){if(pin!==null)alert('PIN inválido');return;}
@@ -856,11 +1072,11 @@ async function renderAdmin(){
 }
 
 let adminSaveTimer;
-async function saveAdminResults(){
+async function saveAdminResults(cb){
  clearTimeout(adminSaveTimer);
  adminSaveTimer=setTimeout(async()=>{
   const r=await fetch(`${API}/results`,{method:'PUT',headers:{'Content-Type':'application/json','X-Admin-Key':adminKey},body:JSON.stringify(ADMIN_RES)});
-  if(r.ok){RESULTS={...ADMIN_RES};flashSaved();}
+  if(r.ok){RESULTS={...ADMIN_RES};flashSaved();if(typeof cb==='function')cb();}
   else{adminKey=null;sessionStorage.removeItem('admin_key');alert('Sesión admin expirada, vuelve a entrar');renderAdmin();}
  },500);
 }
@@ -884,6 +1100,317 @@ function renderRules(){
   <div class="maxbox"><b>782</b><span>⭐ Puntuación máxima posible</span></div>
   <p style="font-size:11.5px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6">Esta versión ya pronostica los 72 partidos de grupos, trofeos y podio.<br>El cuadro eliminatorio interactivo (los 443 pts de bonus) es el siguiente módulo a montar.</p>`;
  $('#view').innerHTML=html;
+}
+
+/* ===================== RENDER: CUADRO ELIMINATORIO ===================== */
+function computeEffectiveTeams(km,matchResults){
+ const res=matchResults||(RESULTS&&RESULTS.matches)||{};
+ const BORD=['r32','r16','qf','sf','final'];
+ const enriched=km.map(m=>({...m}));
+ for(let ri=1;ri<BORD.length;ri++){
+  const prevMs=enriched.filter(m=>m.round===BORD[ri-1]);
+  if(!prevMs.length) continue;
+  const expectedCount=Math.ceil(prevMs.length/2);
+  let thisMs=enriched.filter(m=>m.round===BORD[ri]);
+  // Auto-crear placeholders para rondas no añadidas aún por el admin
+  if(thisMs.length<expectedCount){
+   const curMax=enriched.length?Math.max(...enriched.map(m=>m.no)):72;
+   const need=expectedCount-thisMs.length;
+   for(let j=0;j<need;j++) enriched.push({no:curMax+1+j,round:BORD[ri],h:null,a:null});
+   thisMs=enriched.filter(m=>m.round===BORD[ri]);
+  }
+  thisMs.forEach((match,mi)=>{
+   const srcH=prevMs[mi*2],srcA=prevMs[mi*2+1];
+   [['h',srcH],['a',srcA]].forEach(([side,src])=>{
+    if(!src) return;
+    const rv=res[src.no];
+    if(rv!=null&&rv.h!==''&&rv.a!==''){
+     if(+rv.h>+rv.a) match[side]=src.h;
+     else if(+rv.h<+rv.a) match[side]=src.a;
+     else if(rv.w) match[side]=rv.w==='h'?src.h:src.a;
+     else if(!match[side]) match[side]=`~M${src.no}`;
+    } else if(!match[side]){
+     match[side]=`~M${src.no}`;
+    }
+   });
+  });
+ }
+ // Auto-crear 3er puesto con los perdedores de SF
+ const sfMs=enriched.filter(m=>m.round==='sf');
+ if(sfMs.length>=2&&!enriched.some(m=>m.round==='third')){
+  const maxNo=Math.max(...enriched.map(m=>m.no));
+  enriched.push({no:maxNo+1,round:'third',h:null,a:null});
+ }
+ const thirdMs=enriched.filter(m=>m.round==='third');
+ if(thirdMs.length&&sfMs.length>=2){
+  thirdMs.forEach(match=>{
+   [['h',sfMs[0]],['a',sfMs[1]]].forEach(([side,sf])=>{
+    const rv=res[sf.no];
+    if(rv!=null&&rv.h!==''&&rv.a!==''){
+     const loser=+rv.h>+rv.a?sf.a:+rv.a>+rv.h?sf.h:(rv.w==='h'?sf.a:rv.w==='a'?sf.h:null);
+     if(loser&&!match[side]) match[side]=loser;
+     else if(!match[side]) match[side]=`~M${sf.no}`;
+    } else if(!match[side]) match[side]=`~M${sf.no}`;
+   });
+  });
+ }
+ return enriched;
+}
+
+function buildBracketHTML(enrichedKm,buildCardFn){
+ const CARD_W=190,CARD_H=120,SLOT0=148,CONN_W=36;
+ const BRACKET_ORDER=['r32','r16','qf','sf','final'];
+ const EXTRA_ORDER=['third'];
+ const bracketKm=enrichedKm.filter(m=>BRACKET_ORDER.includes(m.round));
+ const extraKm=enrichedKm.filter(m=>EXTRA_ORDER.includes(m.round));
+ const activeRounds=BRACKET_ORDER
+  .map(id=>ROUNDS.find(r=>r.id===id))
+  .filter(r=>r&&bracketKm.some(m=>m.round===r.id));
+ let html='';
+ if(activeRounds.length){
+  html+=`<div class="bracket-wrap"><div class="bracket-row">`;
+  activeRounds.forEach((round,ri)=>{
+   const rms=bracketKm.filter(m=>m.round===round.id);
+   const slotH=SLOT0*Math.pow(2,ri);
+   const cardPad=Math.max(0,Math.floor((slotH-CARD_H)/2));
+   html+=`<div class="bracket-col" style="width:${CARD_W}px">`;
+   html+=`<div class="bracket-col-hdr">${round.short||round.label}</div>`;
+   rms.forEach(m=>{
+    html+=`<div class="bk-slot" style="height:${slotH}px;padding-top:${cardPad}px">`;
+    html+=buildCardFn(m);
+    html+=`</div>`;
+   });
+   html+=`</div>`;
+   if(ri<activeRounds.length-1){
+    const nextRms=bracketKm.filter(m=>m.round===activeRounds[ri+1].id);
+    const svgH=rms.length*slotH;
+    const lnSt=`style="stroke:var(--line);stroke-width:1.5;fill:none"`;
+    let lines='';
+    for(let pi=0;pi<nextRms.length;pi++){
+     const yTop=(2*pi+0.5)*slotH;
+     const yBot=(2*pi+1.5)*slotH;
+     const yMid=(2*pi+1)*slotH;
+     lines+=`<line x1="0" y1="${yTop}" x2="${CONN_W/2}" y2="${yTop}" ${lnSt}/>`;
+     lines+=`<line x1="${CONN_W/2}" y1="${yTop}" x2="${CONN_W/2}" y2="${yBot}" ${lnSt}/>`;
+     lines+=`<line x1="0" y1="${yBot}" x2="${CONN_W/2}" y2="${yBot}" ${lnSt}/>`;
+     lines+=`<line x1="${CONN_W/2}" y1="${yMid}" x2="${CONN_W}" y2="${yMid}" ${lnSt}/>`;
+    }
+    html+=`<div class="bracket-svg-col" style="width:${CONN_W}px">`;
+    html+=`<div class="bracket-col-hdr-sp"></div>`;
+    html+=`<svg width="${CONN_W}" height="${svgH}" style="display:block;overflow:visible">${lines}</svg>`;
+    html+=`</div>`;
+   }
+  });
+  html+=`</div></div>`;
+ }
+ if(extraKm.length){
+  EXTRA_ORDER.forEach(id=>{
+   const round=ROUNDS.find(r=>r.id===id);
+   if(!round)return;
+   const rms=extraKm.filter(m=>m.round===id);
+   if(!rms.length)return;
+   html+=`<div class="subhead">${round.label}</div><div class="ko-single">`;
+   rms.forEach(m=>{ html+=buildCardFn(m); });
+   html+=`</div>`;
+  });
+ }
+ return html;
+}
+
+function buildKoCard(m, matchPredOverride){
+ const v=(matchPredOverride||MY.matches)[m.no]||{};
+ const readOnly=!!matchPredOverride;
+ const rv=RESULTS&&RESULTS.matches&&RESULTS.matches[m.no];
+ const hasRes=rv&&rv.h!=null&&rv.h!==''&&rv.a!=null&&rv.a!=='';
+ const hi=teamInfo(m.h),ai=teamInfo(m.a);
+ const isPending=!m.h||!m.a||hi.pending||ai.pending;
+
+ // LOCKED solo para vista de espectadores con resultado
+ if(hasRes&&readOnly){
+  const winOff=+rv.h>+rv.a?'h':+rv.a>+rv.h?'a':(rv.w||null);
+  const hasPred=v.h!=null&&v.h!==''&&v.a!=null&&v.a!=='';
+  const penTxt=rv.w?` <span style="font-size:8.5px;color:var(--muted)">(p)</span>`:'';
+  let cardCls='',badge='';
+  if(hasPred){
+   const exact=+v.h===+rv.h&&+v.a===+rv.a;
+   const predWin=+v.h>+v.a?'h':+v.a>+v.h?'a':(v.ph!=null&&v.ph!==''&&v.pa!=null&&v.pa!==''?((+v.ph>+v.pa)?'h':(+v.pa>+v.ph)?'a':null):null);
+   const correctWin=predWin===winOff;
+   const cls=exact?'exact':correctWin?'win':'wrong';cardCls=` res-${cls}`;
+   const lbl=exact?'EXACTO':correctWin?'ACIERTO':'FALLO';
+   const col=exact?'var(--pitch)':correctWin?'var(--gold-d)':'var(--red)';
+   badge=`<span class="ko-badge" style="background:${col}22;color:${col}">${lbl}</span>`;
+  }
+  return `<div class="ko-card${cardCls}">
+   <div class="ko-team${winOff==='h'?' ko-win':''}">
+    <span class="fl">${hi.fl}</span><span class="nm">${hi.nm}</span>
+    <span class="ko-sc-big" style="color:${winOff==='h'?'var(--gold)':'var(--muted)'}">${rv.h}</span>
+   </div>
+   <div class="ko-team${winOff==='a'?' ko-win':''}">
+    <span class="fl">${ai.fl}</span><span class="nm">${ai.nm}</span>
+    <span class="ko-sc-big" style="color:${winOff==='a'?'var(--gold)':'var(--muted)'}">${rv.a}${penTxt}</span>
+   </div>
+   <div class="ko-footer">
+    <span class="ko-mno">Tú: ${hasPred?`${v.h}-${v.a}${v.ph!=null&&v.ph!==''?` (${v.ph}-${v.pa}p)`:''}`:'—'}</span>
+    ${badge}
+   </div>
+  </div>`;
+ }
+
+ // PENDING: equipos aún sin determinar
+ if(isPending){
+  return `<div class="ko-card" style="opacity:.65">
+   <div class="ko-team pending"><span class="fl">⚽</span><span class="nm">Por definir</span></div>
+   <div class="ko-team pending"><span class="fl">⚽</span><span class="nm">Por definir</span></div>
+   <div class="ko-footer"><span class="ko-mno">M${m.no}</span><span style="font-size:9px;color:var(--muted2)">Por jugarse</span></div>
+  </div>`;
+ }
+
+ // EDITABLE siempre (para el jugador), o disabled (espectador sin resultado)
+ const hasPredH=v.h!=null&&v.h!=='',hasPredA=v.a!=null&&v.a!=='';
+ const tie=hasPredH&&hasPredA&&+v.h===+v.a;
+ const wp=hasPredH&&hasPredA?(+v.h>+v.a?'h':+v.a>+v.h?'a':null):null;
+ const penDone=v.pw==='h'||v.pw==='a';
+ const done=hasPredH&&hasPredA&&(!tie||penDone);
+ const dis=readOnly?' disabled':'';
+ const cardAttr=readOnly?'':`data-kocard="${m.no}"`;
+ const footerAttr=readOnly?'':`data-kofoot="${m.no}"`;
+ const penAttr=readOnly?'':`data-penrow="${m.no}"`;
+ // Badge de comparación cuando hay resultado oficial
+ let resBadge='';
+ if(hasRes&&done){
+  const winOff=+rv.h>+rv.a?'h':+rv.a>+rv.h?'a':(rv.w||null);
+  const exact=+v.h===+rv.h&&+v.a===+rv.a;
+  const predWin=wp||(tie&&penDone?v.pw:null);
+  const correctWin=predWin===winOff;
+  const cls=exact?'exact':correctWin?'win':'wrong';
+  const lbl=exact?'EXACTO':correctWin?'ACIERTO':'FALLO';
+  const col=exact?'var(--pitch)':correctWin?'var(--gold-d)':'var(--red)';
+  resBadge=`<span class="ko-badge" style="background:${col}22;color:${col}">${lbl}</span>`;
+ } else if(hasRes&&!done){
+  resBadge=`<span style="font-size:9px;color:var(--muted);font-weight:700">${rv.h}-${rv.a}${rv.w?' (p)':''}</span>`;
+ }
+ return `<div class="ko-card${done&&hasRes?` res-${(()=>{const w=+rv.h>+rv.a?'h':+rv.a>+rv.h?'a':(rv.w||null);const ex=+v.h===+rv.h&&+v.a===+rv.a;const pw=wp||(tie&&penDone?v.pw:null);return ex?'exact':pw===w?'win':'wrong';})()}`:(done?' ko-done':'')}" ${cardAttr}>
+  <div class="ko-team${wp==='h'?' ko-win':''}">
+   <span class="fl">${hi.fl}</span><span class="nm">${hi.nm}</span>
+   <input class="sc${hasPredH?' set':''}"${dis} inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="h" value="${v.h!=null?v.h:''}">
+  </div>
+  <div class="ko-team${wp==='a'?' ko-win':''}">
+   <span class="fl">${ai.fl}</span><span class="nm">${ai.nm}</span>
+   <input class="sc${hasPredA?' set':''}"${dis} inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="a" value="${v.a!=null?v.a:''}">
+  </div>
+  <div class="ko-pen-row" ${penAttr} style="display:${tie?'flex':'none'}">
+   <span style="font-size:9px;font-weight:800;letter-spacing:.8px;color:var(--gold);text-transform:uppercase;flex:0 0 auto">Penales</span>
+   <button class="pen-btn${v.pw==='h'?' on':''}"${dis} data-m="${m.no}" data-side="h">${hi.fl}</button>
+   <button class="pen-btn${v.pw==='a'?' on':''}"${dis} data-m="${m.no}" data-side="a">${ai.fl}</button>
+  </div>
+  <div class="ko-footer" ${footerAttr} style="display:${tie?'none':'flex'}">
+   <span class="ko-mno">M${m.no}</span>
+   ${resBadge||`<span style="font-size:9px;color:${done?'var(--pitch)':'var(--muted)'};font-weight:700">${readOnly?(done?'✓ Pronosticado':'Sin predicción'):(done?'✓ Pronosticado':'Tu marcador')}</span>`}
+  </div>
+ </div>`;
+}
+
+async function renderKnockout(){
+ if(!RESULTS) RESULTS=await S.get('results');
+ const km=RESULTS&&RESULTS.knockout_matches||[];
+ let html=`<div class="section-h"><h2>Cuadro Eliminatorio</h2></div>`;
+ if(!km.length){
+  html+=`<div class="lb-note">⏳ Los emparejamientos aparecerán aquí cuando el organizador los publique tras la fase de grupos.</div>`;
+  $('#view').innerHTML=html;return;
+ }
+ // Pills de ronda (usar enriched para incluir rondas auto-generadas)
+ const BRACKET_ORDER=['r32','r16','qf','sf','final'];
+ const enrichedKm=computeEffectiveTeams(km);
+ const activeRoundIds=BRACKET_ORDER.filter(rid=>enrichedKm.some(m=>m.round===rid));
+ const thirdPresent=enrichedKm.some(m=>m.round==='third');
+ const pillRounds=[...activeRoundIds,...(thirdPresent?['third']:[])];
+ if(pillRounds.length>1){
+  html+=`<div class="ko-round-pills" id="koPills">`;
+  pillRounds.forEach(rid=>{
+   const r=ROUNDS.find(x=>x.id===rid);
+   html+=`<button class="ko-pill" data-round="${rid}">${r?r.short||r.label:rid}</button>`;
+  });
+  html+=`</div>`;
+ }
+ html+=buildBracketHTML(enrichedKm,buildKoCard);
+ $('#view').innerHTML=html;
+
+ // Conectar pills → scroll
+ const brk=$('.bracket-wrap');
+ const pillsEl=$('#koPills');
+ const CARD_W=190,CONN_W=36;
+ const offsets={};
+ activeRoundIds.forEach((rid,i)=>{offsets[rid]=i*(CARD_W+CONN_W);});
+ if(thirdPresent&&brk) offsets['third']=brk.scrollWidth;
+ if(brk){
+  const pillEls=pillsEl?pillsEl.querySelectorAll('[data-round]'):[];
+  const updateActivePill=()=>{
+   const sx=brk.scrollLeft;
+   let active=activeRoundIds[0]||pillRounds[0];
+   activeRoundIds.forEach(rid=>{if(sx>=offsets[rid]-20)active=rid;});
+   pillEls.forEach(p=>p.classList.toggle('on',p.dataset.round===active));
+  };
+  if(pillsEl){
+   pillEls.forEach(pill=>{
+    pill.onclick=()=>brk.scrollTo({left:offsets[pill.dataset.round]||0,behavior:'smooth'});
+   });
+   if(pillEls.length)pillEls[0].classList.add('on');
+  }
+  brk.addEventListener('scroll',updateActivePill,{passive:true});
+ }
+
+ // Cablear inputs de marcador
+ $('#view').querySelectorAll('input.sc').forEach(inp=>{
+  inp.oninput=()=>{
+   inp.value=inp.value.replace(/[^0-9]/g,'').slice(0,2);
+   const no=+inp.dataset.m,s=inp.dataset.s;
+   MY.matches[no]=MY.matches[no]||{h:'',a:''};
+   MY.matches[no][s]=inp.value;
+   inp.classList.toggle('set',inp.value!=='');
+   syncKoCard(no);
+   queueSave();
+  };
+ });
+ // Cablear botones de clasificación por penaltis
+ $('#view').querySelectorAll('.ko-pen-row .pen-btn').forEach(btn=>{
+  btn.onclick=()=>{
+   const no=+btn.dataset.m,side=btn.dataset.side;
+   MY.matches[no]=MY.matches[no]||{h:'',a:''};
+   MY.matches[no].pw=MY.matches[no].pw===side?'':side;
+   syncKoCard(no);
+   queueSave();
+  };
+ });
+}
+
+function syncKoCard(no){
+ const v=MY.matches[no]||{};
+ const hasPredH=v.h!=null&&v.h!=='',hasPredA=v.a!=null&&v.a!=='';
+ const tie=hasPredH&&hasPredA&&+v.h===+v.a;
+ const wp=hasPredH&&hasPredA?(+v.h>+v.a?'h':+v.a>+v.h?'a':null):null;
+ const penDone=v.pw==='h'||v.pw==='a';
+ const done=hasPredH&&hasPredA&&(!tie||penDone);
+
+ document.querySelectorAll(`[data-penrow="${no}"]`).forEach(el=>{
+  el.style.display=tie?'flex':'none';
+  el.querySelectorAll('.pen-btn').forEach(b=>b.classList.toggle('on',b.dataset.side===v.pw));
+ });
+ document.querySelectorAll(`[data-kofoot="${no}"]`).forEach(el=>{
+  el.style.display=tie?'none':'flex';
+  const hint=el.querySelector('span:last-child');
+  if(hint){hint.textContent=done?'✓ Pronosticado':'Tu marcador';hint.style.color=done?'var(--pitch)':'var(--muted)';}
+ });
+ document.querySelectorAll(`[data-kocard="${no}"]`).forEach(card=>{
+  card.classList.toggle('ko-done',done);
+  const rows=card.querySelectorAll('.ko-team');
+  ['h','a'].forEach((side,idx)=>{
+   if(!rows[idx])return;
+   const win=wp===side;
+   rows[idx].classList.toggle('ko-win',win);
+   const nm=rows[idx].querySelector('.nm');
+   if(nm){nm.style.color=win?'var(--cream)':'';nm.style.fontWeight=win?'800':'600';}
+  });
+ });
 }
 
 /* ===================== RENDER: RIVALES ===================== */
@@ -956,10 +1483,16 @@ async function renderSpectate(){
      :`<div style="margin-top:7px;font-size:12px;color:var(--muted)">Sin predicción</div>`;
     tHtml+=`<div class="trophy"><div class="ti">${p.ic}</div><div class="tx"><h3>${p.name}</h3><p>${p.desc}</p>${val}${resLine}</div><div class="pts">+${p.pts}</div></div>`;
    });
+   const km=RESULTS&&RESULTS.knockout_matches||[];
+   let koHtml='';
+   if(km.length){
+    koHtml+=`<div class="subhead">⚡ Cuadro Eliminatorio</div>`;
+    koHtml+=buildBracketHTML(computeEffectiveTeams(km),m=>buildKoCard(m,pm));
+   }
    bodyHtml=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
     <span style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Predicciones de ${esc(pred.name||'')}</span>
     ${score!==null?`<span style="font-family:'Anton';font-size:18px;color:var(--gold)">${score} <span style="font-size:11px;font-family:inherit;font-weight:400;color:var(--muted)">pts</span></span>`:''}
-   </div>`+mHtml+tHtml;
+   </div>`+mHtml+tHtml+koHtml;
   }
  } else {
   bodyHtml=`<div class="lb-note" style="margin-top:4px">Selecciona un participante para ver sus predicciones y compararlas con los resultados oficiales.</div>`;
@@ -972,7 +1505,7 @@ async function renderSpectate(){
 
 /* ===================== TABS / LAUNCH ===================== */
 function setTab(t){curTab=t;document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
- if(t==='matches')renderMatches();else if(t==='trophies')renderTrophies();else if(t==='board')renderBoard();else if(t==='spectate')renderSpectate();else if(t==='admin')renderAdmin();else renderRules();}
+ if(t==='matches')renderMatches();else if(t==='trophies')renderTrophies();else if(t==='board')renderBoard();else if(t==='spectate')renderSpectate();else if(t==='knockout')renderKnockout();else if(t==='admin')renderAdmin();else renderRules();}
 function launch(){$('#onboard').innerHTML='';$('#topbar').style.display='block';$('#app').style.display='block';
  $('#meChip').innerHTML=`<span>Jugando como</span><b>${ME.name}</b>`;
  document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
