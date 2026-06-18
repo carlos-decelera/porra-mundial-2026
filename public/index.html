@@ -1343,46 +1343,9 @@ async function renderKnockout(){
   html+=`<div class="lb-note">⏳ Los emparejamientos aparecerán aquí cuando el organizador los publique tras la fase de grupos.</div>`;
   $('#view').innerHTML=html;return;
  }
- // Pills de ronda (usar enriched para incluir rondas auto-generadas)
- const BRACKET_ORDER=['r32','r16','qf','sf','final'];
  const enrichedKm=computeEffectiveTeams(km);
- const activeRoundIds=BRACKET_ORDER.filter(rid=>enrichedKm.some(m=>m.round===rid));
- const thirdPresent=enrichedKm.some(m=>m.round==='third');
- const pillRounds=[...activeRoundIds,...(thirdPresent?['third']:[])];
- if(pillRounds.length>1){
-  html+=`<div class="ko-round-pills" id="koPills">`;
-  pillRounds.forEach(rid=>{
-   const r=ROUNDS.find(x=>x.id===rid);
-   html+=`<button class="ko-pill" data-round="${rid}">${r?r.short||r.label:rid}</button>`;
-  });
-  html+=`</div>`;
- }
  html+=buildBracketHTML(enrichedKm,buildKoCard);
  $('#view').innerHTML=html;
-
- // Conectar pills → scroll
- const brk=$('.bracket-wrap');
- const pillsEl=$('#koPills');
- const CARD_W=190,CONN_W=36;
- const offsets={};
- activeRoundIds.forEach((rid,i)=>{offsets[rid]=i*(CARD_W+CONN_W);});
- if(thirdPresent&&brk) offsets['third']=brk.scrollWidth;
- if(brk){
-  const pillEls=pillsEl?pillsEl.querySelectorAll('[data-round]'):[];
-  const updateActivePill=()=>{
-   const sx=brk.scrollLeft;
-   let active=activeRoundIds[0]||pillRounds[0];
-   activeRoundIds.forEach(rid=>{if(sx>=offsets[rid]-20)active=rid;});
-   pillEls.forEach(p=>p.classList.toggle('on',p.dataset.round===active));
-  };
-  if(pillsEl){
-   pillEls.forEach(pill=>{
-    pill.onclick=()=>brk.scrollTo({left:offsets[pill.dataset.round]||0,behavior:'smooth'});
-   });
-   if(pillEls.length)pillEls[0].classList.add('on');
-  }
-  brk.addEventListener('scroll',updateActivePill,{passive:true});
- }
 
  // Cablear inputs de marcador
  $('#view').querySelectorAll('input.sc').forEach(inp=>{
