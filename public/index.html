@@ -153,6 +153,20 @@
   .ac-drop{display:none;position:absolute;top:calc(100% + 3px);left:0;right:0;background:var(--panel2);border:1px solid var(--line);border-radius:10px;z-index:30;max-height:210px;overflow-y:auto;box-shadow:var(--shadow)}
   .ac-item{padding:9px 12px;font-size:13px;cursor:pointer;border-radius:8px}
   .ac-item:hover,.ac-item.on{background:var(--pitch-d);color:#eafff0}
+
+  .sc-group{display:flex;flex-direction:column;align-items:center;gap:3px}
+  .sc-pred{display:flex;align-items:center;gap:6px}
+  .res-row{font-size:11px;font-weight:800;font-family:'Anton';padding:1px 7px;border-radius:5px;letter-spacing:.5px;text-align:center}
+  .res-row.exact{background:rgba(47,191,79,.2);color:var(--pitch)}
+  .res-row.win{background:rgba(244,196,48,.18);color:var(--gold)}
+  .res-row.wrong{background:rgba(232,85,77,.12);color:var(--red)}
+  .res-row.pending{background:var(--panel2);color:var(--muted);font-family:inherit;font-weight:600;font-size:10px}
+  .match.res-exact{background:rgba(47,191,79,.06)}
+  .match.res-win{background:rgba(244,196,48,.05)}
+  .match.res-wrong{background:rgba(232,85,77,.04)}
+  .trophy-result{font-size:12px;font-weight:700;margin-top:5px;padding:4px 9px;border-radius:7px;display:inline-flex;align-items:center;gap:5px}
+  .trophy-result.exact{background:rgba(47,191,79,.15);color:var(--pitch)}
+  .trophy-result.wrong{background:rgba(232,85,77,.1);color:var(--red)}
 </style>
 
 </head><body><div id="onboard"><div class="veil"><div class="card reveal">
@@ -183,6 +197,7 @@
     <button data-tab="matches" class="on"><span class="ic">⚽</span>Partidos</button>
     <button data-tab="trophies"><span class="ic">🏅</span>Trofeos</button>
     <button data-tab="board"><span class="ic">📊</span>Ranking</button>
+    <button data-tab="spectate"><span class="ic">👥</span>Rivales</button>
     <button data-tab="rules"><span class="ic">📖</span>Reglas</button>
     <button data-tab="admin"><span class="ic">⚙️</span>Admin</button>
   </nav>
@@ -504,6 +519,7 @@ const S = {
 let ME=null, PARTICIPANTS=[], RESULTS=null, curTab='matches', saveTimer=null;
 let MY={matches:{},trophies:{},podio:{}};
 let adminKey=sessionStorage.getItem('admin_key')||null;
+let spectateId=null;
 let ADMIN_RES={matches:{},trophies:{},podio:{}};
 const uid=()=>'p_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
 const $=s=>document.querySelector(s);
@@ -529,10 +545,11 @@ function tickCount(){const el=$('#count');if(!el)return;let d=Math.max(0,KICKOFF
  el.innerHTML=[[D,'Días'],[h,'Horas'],[m,'Min'],[s,'Seg']].map(([v,l])=>`<div class="u"><b>${String(v).padStart(2,'0')}</b><i>${l}</i></div>`).join('');}
 
 /* ===================== STANDINGS ===================== */
-function standings(g){
+function standings(g,matchesPred){
+ const pred=matchesPred||MY.matches;
  const t=GROUPS[g].map(([fl,nm,rk])=>({fl,nm,rk,pts:0,gf:0,ga:0,pj:0}));
  const idx=Object.fromEntries(t.map((x,i)=>[x.nm,i]));
- MATCHES.filter(m=>m.g===g).forEach(m=>{const v=MY.matches[m.no];
+ MATCHES.filter(m=>m.g===g).forEach(m=>{const v=pred[m.no];
   if(!v||v.h===''||v.h==null||v.a===''||v.a==null)return;
   const H=t[idx[m.h.nm]],A=t[idx[m.a.nm]],hg=+v.h,ag=+v.a;
   H.pj++;A.pj++;H.gf+=hg;H.ga+=ag;A.gf+=ag;A.ga+=hg;
@@ -541,8 +558,8 @@ function standings(g){
  t.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.rk-b.rk);
  return t;
 }
-function standingsHTML(g){
- const t=standings(g);
+function standingsHTML(g,matchesPred){
+ const t=standings(g,matchesPred);
  return t.map((x,i)=>{const cls=i===0?'q1':i===1?'q2':i===2?'q3':'';
   return `<div class="st-row ${cls}"><span class="p">${i+1}</span><span class="fl">${x.fl}</span>
    <span class="nm">${x.nm}</span><span class="pts">${x.pts}</span><span class="gd">${x.gd>=0?'+':''}${x.gd}</span></div>`}).join('');
@@ -603,7 +620,8 @@ function showOnboard(){
 }
 
 /* ===================== RENDER: PARTIDOS ===================== */
-function renderMatches(){
+async function renderMatches(){
+ if(!RESULTS) RESULTS=await S.get('results');
  const lockBanner=LOCKED?`<div style="background:rgba(244,196,48,.12);border:1px solid var(--gold-d);border-radius:12px;padding:13px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--gold)">🔒 Predicciones cerradas · El torneo ha comenzado</div>`:'';
  const tools=LOCKED?`<span style="font-size:12px;color:var(--muted);font-weight:700">🔒 Cerrado</span>`:`<button class="tbtn gold" id="wand">✨ Autocompletar</button><button class="tbtn" id="clr">Borrar</button>`;
  let html=lockBanner+`<div class="section-h"><h2>Fase de Grupos</h2><div class="tools">${tools}</div></div><div class="grid">`;
@@ -618,11 +636,23 @@ function renderMatches(){
    html+=`<div class="jor">Jornada ${j}</div>`;
    MATCHES.filter(m=>m.g===g&&m.j===j).forEach(m=>{
     const v=MY.matches[m.no]||{};
-    html+=`<div class="match"><span class="mno">M${m.no}</span>
+    const rv=RESULTS&&RESULTS.matches&&RESULTS.matches[m.no];
+    const hasRes=rv&&rv.h!=null&&rv.h!==''&&rv.a!=null&&rv.a!=='';
+    const hasPred=v.h!=null&&v.h!=='';
+    let resHtml='',matchCls='';
+    if(hasRes){
+     if(hasPred){const exact=+v.h===+rv.h&&+v.a===+rv.a,win=Math.sign(+v.h-+v.a)===Math.sign(+rv.h-+rv.a);
+      const cls=exact?'exact':win?'win':'wrong';matchCls=' res-'+cls;
+      resHtml=`<div class="res-row ${cls}">${rv.h}-${rv.a}</div>`;}
+     else resHtml=`<div class="res-row pending">${rv.h}-${rv.a}</div>`;
+    }
+    html+=`<div class="match${matchCls}"><span class="mno">M${m.no}</span>
       <div class="side"><span class="fl">${m.h.fl}</span><span class="nm">${m.h.nm}</span></div>
-      <input class="sc${v.h!=null&&v.h!==''?' set':''}"${LOCKED?' disabled':''} inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="h" value="${v.h!=null?v.h:''}">
-      <span class="vs">-</span>
-      <input class="sc${v.a!=null&&v.a!==''?' set':''}"${LOCKED?' disabled':''} inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="a" value="${v.a!=null?v.a:''}">
+      <div class="sc-group"><div class="sc-pred">
+        <input class="sc${v.h!=null&&v.h!==''?' set':''}"${LOCKED?' disabled':''} inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="h" value="${v.h!=null?v.h:''}">
+        <span class="vs">-</span>
+        <input class="sc${v.a!=null&&v.a!==''?' set':''}"${LOCKED?' disabled':''} inputmode="numeric" maxlength="2" data-m="${m.no}" data-s="a" value="${v.a!=null?v.a:''}">
+      </div>${resHtml}</div>
       <div class="side away"><span class="fl">${m.a.fl}</span><span class="nm">${m.a.nm}</span></div></div>`;
    });
   });
@@ -659,7 +689,8 @@ function renderMatches(){
 }
 
 /* ===================== RENDER: TROFEOS ===================== */
-function renderTrophies(){
+async function renderTrophies(){
+ if(!RESULTS) RESULTS=await S.get('results');
  const opts=`<option value="">— Selecciona equipo —</option>`+ALL_TEAMS.slice().sort((a,b)=>a.nm.localeCompare(b.nm))
    .map(t=>`<option value="${t.nm}">${t.fl} ${t.nm}</option>`).join('');
  const lockBanner=LOCKED?`<div style="background:rgba(244,196,48,.12);border:1px solid var(--gold-d);border-radius:12px;padding:13px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--gold)">🔒 Predicciones cerradas · El torneo ha comenzado</div>`:'';
@@ -668,10 +699,19 @@ function renderTrophies(){
  TROPHIES.forEach(t=>{const v=MY.trophies[t.id];let f;
   if(t.type==='team')f=`<div class="field"><select${dis} data-tr="${t.id}">${opts}</select></div>`;
   else f=`<div class="field"><div class="ac-wrap" data-tr="${t.id}"><input${dis} class="ac-inp" type="text" placeholder="${t.ph}" autocomplete="off" value="${v?esc(v):''}"><div class="ac-drop"></div></div></div>`;
-  html+=`<div class="trophy"><div class="ti">${t.ic}</div><div class="tx"><h3>${t.name}</h3><p>${t.desc}</p>${f}</div><div class="pts">+${t.pts}</div></div>`;});
+  const rv=RESULTS&&RESULTS.trophies&&RESULTS.trophies[t.id];
+  let resLine='';
+  if(rv){const match=v&&String(v).trim().toLowerCase()===String(rv).trim().toLowerCase();
+   resLine=`<div class="trophy-result ${match?'exact':'wrong'}">${match?'✓':'✗'} ${esc(rv)}</div>`;}
+  html+=`<div class="trophy"><div class="ti">${t.ic}</div><div class="tx"><h3>${t.name}</h3><p>${t.desc}</p>${f}${resLine}</div><div class="pts">+${t.pts}</div></div>`;});
  html+=`<div class="subhead">🥇 Podio final · 3 / 2 / 2 pts</div>`;
- PODIO.forEach(p=>{html+=`<div class="trophy"><div class="ti">${p.ic}</div><div class="tx"><h3>${p.name}</h3><p>${p.desc}</p>
-   <div class="field"><select${dis} data-pod="${p.id}">${opts}</select></div></div><div class="pts">+${p.pts}</div></div>`;});
+ PODIO.forEach(p=>{
+  const rv=RESULTS&&RESULTS.podio&&RESULTS.podio[p.id];
+  let resLine='';
+  if(rv){const match=MY.podio[p.id]===rv;
+   resLine=`<div class="trophy-result ${match?'exact':'wrong'}">${match?'✓':'✗'} ${esc(rv)}</div>`;}
+  html+=`<div class="trophy"><div class="ti">${p.ic}</div><div class="tx"><h3>${p.name}</h3><p>${p.desc}</p>
+   <div class="field"><select${dis} data-pod="${p.id}">${opts}</select></div>${resLine}</div><div class="pts">+${p.pts}</div></div>`;});
  $('#view').innerHTML=html;
  $('#view').querySelectorAll('select[data-tr]').forEach(s=>{s.value=MY.trophies[s.dataset.tr]||'';if(!LOCKED)s.onchange=()=>{MY.trophies[s.dataset.tr]=s.value;updateCounters();queueSave();};});
  if(!LOCKED)$('#view').querySelectorAll('.ac-wrap[data-tr]').forEach(w=>{attachAC(w,n=>{MY.trophies[w.dataset.tr]=n;updateCounters();queueSave();});});
@@ -846,9 +886,93 @@ function renderRules(){
  $('#view').innerHTML=html;
 }
 
+/* ===================== RENDER: RIVALES ===================== */
+async function renderSpectate(){
+ if(!RESULTS) RESULTS=await S.get('results');
+ const parts=await fetch(`${API}/participants`).then(r=>r.ok?r.json():[]);
+ const others=parts.filter(p=>p.id!==ME.id);
+ const selOpts='<option value="">— Elige un participante —</option>'
+  +others.map(p=>`<option value="${p.id}"${spectateId===p.id?' selected':''}>${esc(p.name)}</option>`).join('');
+ let bodyHtml='';
+ if(spectateId){
+  const pred=await fetch(`${API}/pred/${spectateId}`).then(r=>r.ok?r.json():null);
+  if(pred){
+   const pm=pred.matches||{},pt=pred.trophies||{},pp=pred.podio||{};
+   const score=RESULTS?scoreOf(pred):null;
+   let mHtml=`<div class="subhead">⚽ Fase de Grupos</div><div class="grid">`;
+   GK.forEach(g=>{
+    mHtml+=`<div class="group"><div class="gh"><b>Grupo ${g}</b></div>
+      <div class="standings">${standingsHTML(g,pm)}</div>
+      <div class="qleg"><span><i class="dot" style="background:var(--gold)"></i>1.º</span>
+       <span><i class="dot" style="background:var(--pitch)"></i>2.º clasifican</span>
+       <span><i class="dot" style="background:var(--blue)"></i>3.º (mejores 8)</span></div>
+      <div class="matches">`;
+    [1,2,3].forEach(j=>{
+     mHtml+=`<div class="jor">Jornada ${j}</div>`;
+     MATCHES.filter(m=>m.g===g&&m.j===j).forEach(m=>{
+      const v=pm[m.no]||{};
+      const rv=RESULTS&&RESULTS.matches&&RESULTS.matches[m.no];
+      const hasRes=rv&&rv.h!=null&&rv.h!==''&&rv.a!=null&&rv.a!=='';
+      const hasPred=v.h!=null&&v.h!=='';
+      let resHtml='',matchCls='';
+      if(hasRes){
+       if(hasPred){const exact=+v.h===+rv.h&&+v.a===+rv.a,win=Math.sign(+v.h-+v.a)===Math.sign(+rv.h-+rv.a);
+        const cls=exact?'exact':win?'win':'wrong';matchCls=' res-'+cls;
+        resHtml=`<div class="res-row ${cls}">${rv.h}-${rv.a}</div>`;}
+       else resHtml=`<div class="res-row pending">${rv.h}-${rv.a}</div>`;
+      }
+      mHtml+=`<div class="match${matchCls}"><span class="mno">M${m.no}</span>
+        <div class="side"><span class="fl">${m.h.fl}</span><span class="nm">${m.h.nm}</span></div>
+        <div class="sc-group"><div class="sc-pred">
+         <input class="sc${hasPred?' set':''}" disabled inputmode="numeric" maxlength="2" value="${v.h!=null?v.h:''}">
+         <span class="vs">-</span>
+         <input class="sc${v.a!=null&&v.a!==''?' set':''}" disabled inputmode="numeric" maxlength="2" value="${v.a!=null?v.a:''}">
+        </div>${resHtml}</div>
+        <div class="side away"><span class="fl">${m.a.fl}</span><span class="nm">${m.a.nm}</span></div></div>`;
+     });
+    });
+    mHtml+=`</div></div>`;
+   });
+   mHtml+=`</div>`;
+   let tHtml=`<div class="subhead">🏅 Trofeos individuales</div>`;
+   TROPHIES.forEach(t=>{
+    const v=pt[t.id];
+    const rv=RESULTS&&RESULTS.trophies&&RESULTS.trophies[t.id];
+    let resLine='';
+    if(rv){const match=v&&String(v).trim().toLowerCase()===String(rv).trim().toLowerCase();
+     resLine=`<div class="trophy-result ${match?'exact':'wrong'}">${match?'✓':'✗'} ${esc(rv)}</div>`;}
+    const val=v?`<div style="margin-top:7px;font-size:13.5px;font-weight:700">${esc(v)}</div>`
+     :`<div style="margin-top:7px;font-size:12px;color:var(--muted)">Sin predicción</div>`;
+    tHtml+=`<div class="trophy"><div class="ti">${t.ic}</div><div class="tx"><h3>${t.name}</h3><p>${t.desc}</p>${val}${resLine}</div><div class="pts">+${t.pts}</div></div>`;
+   });
+   tHtml+=`<div class="subhead">🥇 Podio final</div>`;
+   PODIO.forEach(p=>{
+    const v=pp[p.id];
+    const rv=RESULTS&&RESULTS.podio&&RESULTS.podio[p.id];
+    let resLine='';
+    if(rv){const match=v===rv;
+     resLine=`<div class="trophy-result ${match?'exact':'wrong'}">${match?'✓':'✗'} ${esc(rv)}</div>`;}
+    const val=v?`<div style="margin-top:7px;font-size:13.5px;font-weight:700">${esc(v)}</div>`
+     :`<div style="margin-top:7px;font-size:12px;color:var(--muted)">Sin predicción</div>`;
+    tHtml+=`<div class="trophy"><div class="ti">${p.ic}</div><div class="tx"><h3>${p.name}</h3><p>${p.desc}</p>${val}${resLine}</div><div class="pts">+${p.pts}</div></div>`;
+   });
+   bodyHtml=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <span style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Predicciones de ${esc(pred.name||'')}</span>
+    ${score!==null?`<span style="font-family:'Anton';font-size:18px;color:var(--gold)">${score} <span style="font-size:11px;font-family:inherit;font-weight:400;color:var(--muted)">pts</span></span>`:''}
+   </div>`+mHtml+tHtml;
+  }
+ } else {
+  bodyHtml=`<div class="lb-note" style="margin-top:4px">Selecciona un participante para ver sus predicciones y compararlas con los resultados oficiales.</div>`;
+ }
+ $('#view').innerHTML=`<div class="section-h"><h2>Rivales</h2></div>
+  <div style="margin-bottom:18px"><select id="spectateSelect" style="font-size:14px">${selOpts}</select></div>
+  ${bodyHtml}`;
+ $('#spectateSelect').onchange=e=>{spectateId=e.target.value||null;renderSpectate();};
+}
+
 /* ===================== TABS / LAUNCH ===================== */
 function setTab(t){curTab=t;document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
- if(t==='matches')renderMatches();else if(t==='trophies')renderTrophies();else if(t==='board')renderBoard();else if(t==='admin')renderAdmin();else renderRules();}
+ if(t==='matches')renderMatches();else if(t==='trophies')renderTrophies();else if(t==='board')renderBoard();else if(t==='spectate')renderSpectate();else if(t==='admin')renderAdmin();else renderRules();}
 function launch(){$('#onboard').innerHTML='';$('#topbar').style.display='block';$('#app').style.display='block';
  $('#meChip').innerHTML=`<span>Jugando como</span><b>${ME.name}</b>`;
  document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
