@@ -774,19 +774,36 @@ async function renderTrophies(){
 }
 
 /* ===================== SCORING ===================== */
+function koPts(no){
+ if(no<=88)return{c:2,e:4};
+ if(no<=96)return{c:3,e:5};
+ if(no<=100)return{c:4,e:6};
+ if(no<=102)return{c:5,e:7};
+ return{c:6,e:8};
+}
 function scoreOf(pred){
- if(!RESULTS)return null;let s=0;
- MATCHES.forEach(m=>{const p=pred.matches&&pred.matches[m.no],r=RESULTS.matches&&RESULTS.matches[m.no];
+ if(!RESULTS)return null;
+ let s=0;
+ // Fase de grupos: clasificado=1, exacto=2
+ MATCHES.forEach(m=>{
+  const p=pred.matches&&pred.matches[m.no],r=RESULTS.matches&&RESULTS.matches[m.no];
   if(!p||!r||p.h===''||p.h==null||r.h===''||r.h==null)return;
-  const po=Math.sign(p.h-p.a),ro=Math.sign(r.h-r.a);
-  if(po===ro)s+=PTS_WINNER;
-  if(+p.h===+r.h&&+p.a===+r.a)s+=PTS_EXACT;});
+  const po=Math.sign(+p.h-+p.a),ro=Math.sign(+r.h-+r.a);
+  if(po===ro)s+=1;
+  if(+p.h===+r.h&&+p.a===+r.a)s+=2;
+ });
+ // Fase eliminatoria: puntos escalados por ronda
  if(RESULTS.knockout_matches){
-  RESULTS.knockout_matches.forEach(m=>{const p=pred.matches&&pred.matches[m.no],r=RESULTS.matches&&RESULTS.matches[m.no];
+  RESULTS.knockout_matches.forEach(m=>{
+   const p=pred.matches&&pred.matches[m.no],r=RESULTS.matches&&RESULTS.matches[m.no];
    if(!p||!r||p.h===''||p.h==null||r.h===''||r.h==null)return;
    const po=Math.sign(+p.h-+p.a),ro=Math.sign(+r.h-+r.a);
-   if(po===ro)s+=PTS_WINNER;
-   if(+p.h===+r.h&&+p.a===+r.a)s+=PTS_EXACT;});
+   const {c,e}=koPts(m.no);
+   const draw=ro===0;
+   const winOk=draw?(r.w&&p.pw&&p.pw===r.w):po===ro;
+   if(winOk)s+=c;
+   if(+p.h===+r.h&&+p.a===+r.a&&(!draw||winOk))s+=e;
+  });
  }
  TROPHIES.forEach(t=>{const p=pred.trophies&&pred.trophies[t.id],r=RESULTS.trophies&&RESULTS.trophies[t.id];
   if(p&&r&&String(p).trim().toLowerCase()===String(r).trim().toLowerCase())s+=t.pts;});
@@ -794,9 +811,17 @@ function scoreOf(pred){
   if(p&&r&&p===r)s+=t.pts;});
  return s;
 }
-function groupPhasePts(pred){let s=0;MATCHES.forEach(m=>{const p=pred.matches&&pred.matches[m.no],r=RESULTS&&RESULTS.matches&&RESULTS.matches[m.no];
-  if(!p||!r||p.h===''||p.h==null||r.h===''||r.h==null)return;const po=Math.sign(p.h-p.a),ro=Math.sign(r.h-r.a);
-  if(po===ro)s+=1;if(+p.h===+r.h&&+p.a===+r.a)s+=2;});return s;}
+function groupPhasePts(pred){
+ let s=0;
+ MATCHES.forEach(m=>{
+  const p=pred.matches&&pred.matches[m.no],r=RESULTS&&RESULTS.matches&&RESULTS.matches[m.no];
+  if(!p||!r||p.h===''||p.h==null||r.h===''||r.h==null)return;
+  const po=Math.sign(+p.h-+p.a),ro=Math.sign(+r.h-+r.a);
+  if(po===ro)s+=1;
+  if(+p.h===+r.h&&+p.a===+r.a)s+=2;
+ });
+ return s;
+}
 
 /* ===================== RENDER: RANKING ===================== */
 async function renderBoard(){
@@ -822,8 +847,8 @@ async function renderBoard(){
 
  // Desglose por fase (mío)
  const gpts=scored?groupPhasePts(rows.find(r=>r.mine)?.pr||MY):0;
- const phases=[['Fase de Grupos',gpts,216,true],['Dieciseisavos de Final',0,160,false],['Octavos de Final',0,136,false],
-   ['Cuartos de Final',0,112,false],['Semifinales',0,78,false],['Tercer Puesto',0,3,false],['Final',0,50,false]];
+ const phases=[['Fase de Grupos',gpts,216,true],['Dieciseisavos de Final',0,96,false],['Octavos de Final',0,64,false],
+   ['Cuartos de Final',0,40,false],['Semifinales',0,24,false],['Final',0,14,false]];
  html+=`<div class="subhead">📈 Desglose por fase (tú)</div>`;
  phases.forEach(([n,v,mx,act])=>{html+=`<div class="phase${act?'':' dim'}"><span class="pn">${n}${act?'':' · próximamente'}</span><span class="pm">${v} / ${mx}</span></div>`;});
 
