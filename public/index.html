@@ -183,7 +183,7 @@
   .ko-team .nm{flex:1;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ko-footer{display:flex;align-items:center;justify-content:space-between;padding:5px 12px 7px;border-top:1px solid var(--line);background:var(--bg2);min-height:26px}
   .ko-mno{font-size:9px;color:var(--muted2);font-weight:700;letter-spacing:.5px}
-  .bracket-wrap{overflow-x:auto;padding:0 0 60px;-webkit-overflow-scrolling:touch}
+  .bracket-wrap{overflow-x:auto;padding:0 0 60px 28px;-webkit-overflow-scrolling:touch}
   .bracket-row{display:flex;align-items:flex-start}
   .bracket-col{display:flex;flex-direction:column;flex-shrink:0}
   .bracket-col-hdr{height:38px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);white-space:nowrap}
@@ -1200,9 +1200,10 @@ function buildBracketHTML(enrichedKm,buildCardFn){
    const cardPad=Math.max(0,Math.floor((slotH-CARD_H)/2));
    html+=`<div class="bracket-col" style="width:${CARD_W}px">`;
    html+=`<div class="bracket-col-hdr">${round.short||round.label}</div>`;
-   rms.forEach(m=>{
-    html+=`<div class="bk-slot" style="height:${slotH}px;padding-top:${cardPad}px">`;
-    html+=buildCardFn(m);
+   rms.forEach((m,mi)=>{
+    const letter=round.id==='r32'?`<span style="position:absolute;left:-22px;top:${cardPad}px;height:${CARD_H}px;display:flex;align-items:center;font-family:'Anton',sans-serif;font-size:15px;color:#7de8a8;letter-spacing:.5px">${String.fromCharCode(65+mi)}</span>`:'';
+    html+=`<div class="bk-slot" style="height:${slotH}px;padding-top:${cardPad}px${round.id==='r32'?';position:relative':''}">`;
+    html+=letter+buildCardFn(m);
     html+=`</div>`;
    });
    html+=`</div>`;
