@@ -215,7 +215,7 @@
    <input id="nameIn" type="text" maxlength="26" placeholder="Tu nombre" autocomplete="off">
    <input id="pinIn" type="password" maxlength="6" placeholder="PIN (4-6 dígitos)" inputmode="numeric" autocomplete="off">
    <button class="btn" id="joinBtn">Entrar a la porra ⚽</button>
-   <div class="stats4"><div><b>48</b><i>Equipos</i></div><div><b>72</b><i>Partidos</i></div><div><b>13</b><i>Premios</i></div><div><b>493</b><i>Pts máx</i></div></div>
+   <div class="stats4"><div><b>48</b><i>Equipos</i></div><div><b>72</b><i>Partidos</i></div><div><b>13</b><i>Premios</i></div><div><b>339</b><i>Pts máx</i></div></div>
  </div></div></div>
 <header class="top" id="topbar" style="display:none">
   <div class="top-inner">
@@ -633,7 +633,7 @@ function showOnboard(){
     <input id="pinIn" type="password" maxlength="6" placeholder="PIN (4-6 dígitos)" inputmode="numeric" autocomplete="off">
     <button class="btn" id="mainBtn">${rec?'Recuperar sesión 🔑':'Entrar a la porra ⚽'}</button>
     <button class="btn ghost" id="modeBtn" style="margin-top:8px">${rec?'Soy nuevo · Registrarme':'¿Ya tienes cuenta? Recuperar sesión'}</button>
-    ${!rec?'<div class="stats4"><div><b>48</b><i>Equipos</i></div><div><b>72</b><i>Partidos</i></div><div><b>13</b><i>Premios</i></div><div><b>493</b><i>Pts máx</i></div></div>':''}
+    ${!rec?'<div class="stats4"><div><b>48</b><i>Equipos</i></div><div><b>72</b><i>Partidos</i></div><div><b>13</b><i>Premios</i></div><div><b>339</b><i>Pts máx</i></div></div>':''}
   </div></div>`;
   const inp=$('#nameIn'),pin=$('#pinIn');inp.focus();
   const showErr=msg=>{render(msg);};
@@ -775,11 +775,7 @@ async function renderTrophies(){
 
 /* ===================== SCORING ===================== */
 function koPts(no){
- if(no<=88)return{c:2,e:4};
- if(no<=96)return{c:3,e:5};
- if(no<=100)return{c:4,e:6};
- if(no<=103)return{c:5,e:7};  // SF + 3er puesto
- return{c:6,e:8};               // final
+ return{c:1,e:2};
 }
 function scoreOf(pred){
  if(!RESULTS)return null;
@@ -837,7 +833,7 @@ async function renderBoard(){
   return {name:p.name,sc:scoreOf(pr),md,pr,mine:p.id===ME.id};});
  rows.sort((a,b)=>scored?(b.sc-a.sc):(b.md-a.md));
  let html='';
- if(!scored)html+=`<div class="lb-note">⏳ El Mundial aún no empieza. El ranking se ordena por predicciones hechas; cuando el organizador introduzca resultados, los puntos se calculan solos (máx <b>493</b>).</div>`;
+ if(!scored)html+=`<div class="lb-note">⏳ El Mundial aún no empieza. El ranking se ordena por predicciones hechas; cuando el organizador introduzca resultados, los puntos se calculan solos (máx <b>339</b>).</div>`;
  html+=`<div class="section-h"><h2>Ranking</h2></div>`;
  rows.forEach((r,i)=>{const top=i===0?'top1':i===1?'top2':i===2?'top3':'';
   const right=scored?`<div class="sco"><b>${r.sc}</b><small>pts</small></div>`:`<div class="sco"><b>${r.md}</b><small>de 72</small></div>`;
@@ -847,8 +843,8 @@ async function renderBoard(){
 
  // Desglose por fase (mío)
  const gpts=scored?groupPhasePts(rows.find(r=>r.mine)?.pr||MY):0;
- const phases=[['Fase de Grupos',gpts,216,true],['Dieciseisavos de Final',0,96,false],['Octavos de Final',0,64,false],
-   ['Cuartos de Final',0,40,false],['Semifinales',0,24,false],['Final',0,14,false]];
+ const phases=[['Fase de Grupos',gpts,216,true],['Dieciseisavos de Final',0,48,false],['Octavos de Final',0,24,false],
+   ['Cuartos de Final',0,12,false],['Semifinales',0,6,false],['Final',0,3,false]];
  html+=`<div class="subhead">📈 Desglose por fase (tú)</div>`;
  phases.forEach(([n,v,mx,act])=>{html+=`<div class="phase${act?'':' dim'}"><span class="pn">${n}${act?'':' · próximamente'}</span><span class="pm">${v} / ${mx}</span></div>`;});
 
@@ -1113,17 +1109,17 @@ function renderRules(){
    ${rr('Clasificado',pc,n*pc,1)}${rr('Resultado exacto',pe,n*pe,1)}</div>`;
  let html=`<div class="section-h"><h2>Puntuación</h2></div>
   ${rf('⚽ Fase de Grupos',72,1,2)}
-  ${rf('🔵 Dieciseisavos',16,2,4)}
-  ${rf('🟡 Octavos',8,3,5)}
-  ${rf('🟠 Cuartos',4,4,6)}
-  ${rf('🔴 Semifinales',2,5,7)}
-  ${rf('🥉 Tercer Puesto',1,5,7)}
-  ${rf('🏆 Final',1,6,8)}
+  ${rf('🔵 Dieciseisavos',16,1,2)}
+  ${rf('🟡 Octavos',8,1,2)}
+  ${rf('🟠 Cuartos',4,1,2)}
+  ${rf('🔴 Semifinales',2,1,2)}
+  ${rf('🥉 Tercer Puesto',1,1,2)}
+  ${rf('🏆 Final',1,1,2)}
   <div class="rule-sec"><div class="rh"><b>🏅 Trofeos<small>10 trofeos</small></b><span class="mx">Máx 20</span></div>
    ${TROPHIES.map(t=>rr(t.name,2,2,1)).join('')}</div>
   <div class="rule-sec"><div class="rh"><b>🥇 Podio</b><span class="mx">Máx 7</span></div>
    ${rr('Campeón',3,3,1)}${rr('Subcampeón',2,2,1)}${rr('Tercer puesto',2,2,1)}</div>
-  <div class="maxbox"><b>493</b><span>⭐ Puntuación máxima posible</span></div>`;
+  <div class="maxbox"><b>339</b><span>⭐ Puntuación máxima posible</span></div>`;
  $('#view').innerHTML=html;
 }
 
@@ -1297,10 +1293,11 @@ function buildKoCard(m, matchPredOverride){
  const wp=hasPredH&&hasPredA?(+v.h>+v.a?'h':+v.a>+v.h?'a':null):null;
  const penDone=v.pw==='h'||v.pw==='a';
  const done=hasPredH&&hasPredA&&(!tie||penDone);
- const dis=readOnly?' disabled':'';
- const cardAttr=readOnly?'':`data-kocard="${m.no}"`;
- const footerAttr=readOnly?'':`data-kofoot="${m.no}"`;
- const penAttr=readOnly?'':`data-penrow="${m.no}"`;
+ const locked=readOnly||hasRes;
+ const dis=locked?' disabled':'';
+ const cardAttr=locked?'':`data-kocard="${m.no}"`;
+ const footerAttr=locked?'':`data-kofoot="${m.no}"`;
+ const penAttr=locked?'':`data-penrow="${m.no}"`;
  // Badge de comparación cuando hay resultado oficial
  let resBadge='';
  if(hasRes&&done){
