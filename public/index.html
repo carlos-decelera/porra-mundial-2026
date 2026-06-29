@@ -796,7 +796,9 @@ function scoreOf(pred){
    const po=Math.sign(+p.h-+p.a),ro=Math.sign(+r.h-+r.a);
    const {c,e}=koPts(m.no);
    const draw=ro===0;
-   const winOk=draw?(r.w&&p.pw&&p.pw===r.w):po===ro;
+   const actualWinner=ro>0?'h':ro<0?'a':(r.w||null);
+   const predWinner=po>0?'h':po<0?'a':(p.pw||null);
+   const winOk=predWinner!=null&&predWinner===actualWinner;
    if(winOk)s+=c;
    if(+p.h===+r.h&&+p.a===+r.a&&(!draw||winOk))s+=e;
   });
@@ -1255,7 +1257,7 @@ function buildKoCard(m, matchPredOverride){
   let cardCls='',badge='';
   if(hasPred){
    const exact=+v.h===+rv.h&&+v.a===+rv.a;
-   const predWin=+v.h>+v.a?'h':+v.a>+v.h?'a':(v.ph!=null&&v.ph!==''&&v.pa!=null&&v.pa!==''?((+v.ph>+v.pa)?'h':(+v.pa>+v.ph)?'a':null):null);
+   const predWin=+v.h>+v.a?'h':+v.a>+v.h?'a':(v.pw||null);
    const correctWin=predWin===winOff;
    const cls=exact?'exact':correctWin?'win':'wrong';cardCls=` res-${cls}`;
    const lbl=exact?'EXACTO':correctWin?'ACIERTO':'FALLO';
