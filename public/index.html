@@ -215,7 +215,7 @@
    <input id="nameIn" type="text" maxlength="26" placeholder="Tu nombre" autocomplete="off">
    <input id="pinIn" type="password" maxlength="6" placeholder="PIN (4-6 dígitos)" inputmode="numeric" autocomplete="off">
    <button class="btn" id="joinBtn">Entrar a la porra ⚽</button>
-   <div class="stats4"><div><b>48</b><i>Equipos</i></div><div><b>72</b><i>Partidos</i></div><div><b>13</b><i>Premios</i></div><div><b>339</b><i>Pts máx</i></div></div>
+   <div class="stats4"><div><b>48</b><i>Equipos</i></div><div><b>72</b><i>Partidos</i></div><div><b>13</b><i>Premios</i></div><div><b>403</b><i>Pts máx</i></div></div>
  </div></div></div>
 <header class="top" id="topbar" style="display:none">
   <div class="top-inner">
@@ -251,6 +251,7 @@
 /* ===================== DATOS ===================== */
 const KICKOFF=new Date('2026-06-11T19:00:00Z'); // 11 jun 21:00 CEST
 const LOCKED=new Date()>=KICKOFF;
+const R32_LOCKED=true; // Dieciseisavos de Final: predicciones cerradas manualmente
 // Orden de equipos = orden oficial de posición en el grupo (verificado en capturas para A–H).
 // Ranking FIFA: exacto para A–H (capturas); aproximado para I–L.
 const GROUPS={
@@ -513,7 +514,7 @@ const teamInfo=nm=>{
  if(nm.startsWith('~M')) return {fl:'❓',nm:`G.${nm.slice(1)}`,rk:99,pending:true};
  return ALL_TEAMS.find(t=>t.nm===nm)||{fl:'🏳️',nm,rk:99};
 };
-const PTS_WINNER=1, PTS_EXACT=2; // marcador exacto = +1 (ganador) +2 (exacto) = 3
+const PTS_WINNER=1, PTS_EXACT=3, PTS_PENALTY=1; // marcador exacto = +1 (ganador) +3 (exacto) [+1 si aciertas penales] = 4 (5 en penaltis)
 
 /* ===================== STORAGE ===================== */
 const API = '/api';
@@ -633,7 +634,7 @@ function showOnboard(){
     <input id="pinIn" type="password" maxlength="6" placeholder="PIN (4-6 dígitos)" inputmode="numeric" autocomplete="off">
     <button class="btn" id="mainBtn">${rec?'Recuperar sesión 🔑':'Entrar a la porra ⚽'}</button>
     <button class="btn ghost" id="modeBtn" style="margin-top:8px">${rec?'Soy nuevo · Registrarme':'¿Ya tienes cuenta? Recuperar sesión'}</button>
-    ${!rec?'<div class="stats4"><div><b>48</b><i>Equipos</i></div><div><b>72</b><i>Partidos</i></div><div><b>13</b><i>Premios</i></div><div><b>339</b><i>Pts máx</i></div></div>':''}
+    ${!rec?'<div class="stats4"><div><b>48</b><i>Equipos</i></div><div><b>72</b><i>Partidos</i></div><div><b>13</b><i>Premios</i></div><div><b>403</b><i>Pts máx</i></div></div>':''}
   </div></div>`;
   const inp=$('#nameIn'),pin=$('#pinIn');inp.focus();
   const showErr=msg=>{render(msg);};
@@ -775,7 +776,7 @@ async function renderTrophies(){
 
 /* ===================== SCORING ===================== */
 function koPts(no){
- return{c:1,e:2};
+ return{c:1,e:3};
 }
 function scoreOf(pred){
  if(!RESULTS)return null;
@@ -801,6 +802,7 @@ function scoreOf(pred){
    const winOk=predWinner!=null&&predWinner===actualWinner;
    if(winOk)s+=c;
    if(+p.h===+r.h&&+p.a===+r.a&&(!draw||winOk))s+=e;
+   if(draw&&r.w&&p.pw&&p.pw===r.w)s+=1; // bonus: acierta quién gana en penales
   });
  }
  TROPHIES.forEach(t=>{const p=pred.trophies&&pred.trophies[t.id],r=RESULTS.trophies&&RESULTS.trophies[t.id];
@@ -835,7 +837,7 @@ async function renderBoard(){
   return {name:p.name,sc:scoreOf(pr),md,pr,mine:p.id===ME.id};});
  rows.sort((a,b)=>scored?(b.sc-a.sc):(b.md-a.md));
  let html='';
- if(!scored)html+=`<div class="lb-note">⏳ El Mundial aún no empieza. El ranking se ordena por predicciones hechas; cuando el organizador introduzca resultados, los puntos se calculan solos (máx <b>339</b>).</div>`;
+ if(!scored)html+=`<div class="lb-note">⏳ El Mundial aún no empieza. El ranking se ordena por predicciones hechas; cuando el organizador introduzca resultados, los puntos se calculan solos (máx <b>403</b>).</div>`;
  html+=`<div class="section-h"><h2>Ranking</h2></div>`;
  rows.forEach((r,i)=>{const top=i===0?'top1':i===1?'top2':i===2?'top3':'';
   const right=scored?`<div class="sco"><b>${r.sc}</b><small>pts</small></div>`:`<div class="sco"><b>${r.md}</b><small>de 72</small></div>`;
@@ -845,8 +847,8 @@ async function renderBoard(){
 
  // Desglose por fase (mío)
  const gpts=scored?groupPhasePts(rows.find(r=>r.mine)?.pr||MY):0;
- const phases=[['Fase de Grupos',gpts,216,true],['Dieciseisavos de Final',0,48,false],['Octavos de Final',0,24,false],
-   ['Cuartos de Final',0,12,false],['Semifinales',0,6,false],['Final',0,3,false]];
+ const phases=[['Fase de Grupos',gpts,216,true],['Dieciseisavos de Final',0,80,false],['Octavos de Final',0,40,false],
+   ['Cuartos de Final',0,20,false],['Semifinales',0,10,false],['Final',0,5,false]];
  html+=`<div class="subhead">📈 Desglose por fase (tú)</div>`;
  phases.forEach(([n,v,mx,act])=>{html+=`<div class="phase${act?'':' dim'}"><span class="pn">${n}${act?'':' · próximamente'}</span><span class="pm">${v} / ${mx}</span></div>`;});
 
@@ -1107,21 +1109,21 @@ async function saveAdminResults(cb){
 /* ===================== RENDER: REGLAS ===================== */
 function renderRules(){
  const rr=(l,p,m,sub)=>`<div class="rule-row"><span class="l${sub?' sub':''}">${l}</span><span><span class="pt">${p}</span><span class="mxs">Máx ${m} pts</span></span></div>`;
- const rf=(label,n,pc,pe)=>`<div class="rule-sec"><div class="rh"><b>${label}<small>${n} partido${n>1?'s':''}</small></b><span class="mx">Máx ${n*(pc+pe)}</span></div>
-   ${rr('Clasificado',pc,n*pc,1)}${rr('Resultado exacto',pe,n*pe,1)}</div>`;
+ const rf=(label,n,pc,pe,pp)=>`<div class="rule-sec"><div class="rh"><b>${label}<small>${n} partido${n>1?'s':''}</small></b><span class="mx">Máx ${n*(pc+pe+(pp||0))}</span></div>
+   ${rr('Clasificado',pc,n*pc,1)}${rr('Resultado exacto',pe,n*pe,1)}${pp?rr('Acierto ganador de penales',pp,n*pp,1):''}</div>`;
  let html=`<div class="section-h"><h2>Puntuación</h2></div>
   ${rf('⚽ Fase de Grupos',72,1,2)}
-  ${rf('🔵 Dieciseisavos',16,1,2)}
-  ${rf('🟡 Octavos',8,1,2)}
-  ${rf('🟠 Cuartos',4,1,2)}
-  ${rf('🔴 Semifinales',2,1,2)}
-  ${rf('🥉 Tercer Puesto',1,1,2)}
-  ${rf('🏆 Final',1,1,2)}
+  ${rf('🔵 Dieciseisavos',16,1,3,1)}
+  ${rf('🟡 Octavos',8,1,3,1)}
+  ${rf('🟠 Cuartos',4,1,3,1)}
+  ${rf('🔴 Semifinales',2,1,3,1)}
+  ${rf('🥉 Tercer Puesto',1,1,3,1)}
+  ${rf('🏆 Final',1,1,3,1)}
   <div class="rule-sec"><div class="rh"><b>🏅 Trofeos<small>10 trofeos</small></b><span class="mx">Máx 20</span></div>
    ${TROPHIES.map(t=>rr(t.name,2,2,1)).join('')}</div>
   <div class="rule-sec"><div class="rh"><b>🥇 Podio</b><span class="mx">Máx 7</span></div>
    ${rr('Campeón',3,3,1)}${rr('Subcampeón',2,2,1)}${rr('Tercer puesto',2,2,1)}</div>
-  <div class="maxbox"><b>339</b><span>⭐ Puntuación máxima posible</span></div>`;
+  <div class="maxbox"><b>403</b><span>⭐ Puntuación máxima posible</span></div>`;
  $('#view').innerHTML=html;
 }
 
@@ -1295,7 +1297,7 @@ function buildKoCard(m, matchPredOverride){
  const wp=hasPredH&&hasPredA?(+v.h>+v.a?'h':+v.a>+v.h?'a':null):null;
  const penDone=v.pw==='h'||v.pw==='a';
  const done=hasPredH&&hasPredA&&(!tie||penDone);
- const locked=readOnly||hasRes;
+ const locked=readOnly||hasRes||(m.round==='r32'&&R32_LOCKED);
  const dis=locked?' disabled':'';
  const cardAttr=locked?'':`data-kocard="${m.no}"`;
  const footerAttr=locked?'':`data-kofoot="${m.no}"`;
