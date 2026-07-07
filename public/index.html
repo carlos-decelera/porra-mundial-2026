@@ -252,6 +252,7 @@
 const KICKOFF=new Date('2026-06-11T19:00:00Z'); // 11 jun 21:00 CEST
 const LOCKED=new Date()>=KICKOFF;
 const R32_LOCKED=true; // Dieciseisavos de Final: predicciones cerradas manualmente
+const R16_LOCKED=true; // Octavos de Final: predicciones cerradas manualmente
 // Orden de equipos = orden oficial de posición en el grupo (verificado en capturas para A–H).
 // Ranking FIFA: exacto para A–H (capturas); aproximado para I–L.
 const GROUPS={
@@ -1297,7 +1298,7 @@ function buildKoCard(m, matchPredOverride){
  const wp=hasPredH&&hasPredA?(+v.h>+v.a?'h':+v.a>+v.h?'a':null):null;
  const penDone=v.pw==='h'||v.pw==='a';
  const done=hasPredH&&hasPredA&&(!tie||penDone);
- const locked=readOnly||hasRes||(m.round==='r32'&&R32_LOCKED);
+ const locked=readOnly||hasRes||(m.round==='r32'&&R32_LOCKED)||(m.round==='r16'&&R16_LOCKED);
  const dis=locked?' disabled':'';
  const cardAttr=locked?'':`data-kocard="${m.no}"`;
  const footerAttr=locked?'':`data-kofoot="${m.no}"`;
